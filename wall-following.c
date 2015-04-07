@@ -21,12 +21,17 @@ int scanAngle[] = {0 ,900, 1800}; // Angles for the turet to point
 int scanPing[] = {0 ,0, 0}; // Holds the distance for each direction
 
 int leftPtr = 0;      // Angle for left
-int straigtPtr = 1; // Angle for straight ahead
+int aheadPtr = 1; // Angle for straight ahead
 int rightPtr = 2;  // Angle for right
 
 int isTurningLeft = 0;
+int isTuretOn = 0;
 
-unsigned int pstack[256]; // If things get weird make this number bigger!
+int speed = 16;
+int minWallDist = 30;
+
+unsigned int tstack[256]; // If things get weird make this number bigger!
+unsigned int kstack[256]; // If things get weird make this number bigger!
 
 void goLeft();
 void goStop();
@@ -35,16 +40,18 @@ void goBackward();
 void goForward();
 int getPing();
 void scanStep();
-//void pollPingSensors(void *par); // Use a cog to fill range variables with ping distances
+void keyboardCog(void *par);
+
+void turetCog(void *par); // Use a cog to fill range variables with ping distances
 
 int main(){
 
  
   // Start the ping cog
-  //cogstart(&pollPingSensors, NULL, pstack, sizeof(pstack));
+  cogstart(&turetCog, NULL, tstack, sizeof(tstack));
+  cogstart(&keyboardCog, NULL, kstack, sizeof(kstack));
 
   simpleterm_close();                         // Close default same-cog terminal
-  term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
 
   drive_setRampStep(10);                      // 10 ticks/sec / 20 ms
 
@@ -55,35 +62,28 @@ int main(){
   // Keep running
   while(1) {
 
-    scanStep();
-
-    // Handle any keystroke navigation
-    c = fdserial_rxTime(term, 50);            // Get character from terminal
-    if(c == 'f') goForward();         // If 'f' then forward
-    if(c == 'b') goBackward();       // If 'b' then backward
-    if(c == 'l') goLeft();        // If 'l' then left
-    if(c == 'r') goRight();        // If 'r' then right
-    if(c == 's') goStop();           // If 's' then stop
+    int ahead = scanPing[ aheadPtr ];
+    int left = scanPing[ leftPtr ];
+    int right = scanPing[ rightPtr ];
 
 
 
     // Stop if something staight in front
     //
-    if (  scanPing[ straigtPtr ] <= 15 ) {
+    if (  ahead <= 15 ) {
 
       goLeft();
       isTurningLeft = 1;
     }
-/*
+
     else if ( isTurningLeft == 1 && scanPing[ rightPtr ] > 15 ) {
 
       goForward();
       isTurningLeft = 0;
     }
-*/
+
     //printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
 
-    pause(100);
 
   }
   servo_stop();                               // Stop servo process
@@ -91,36 +91,65 @@ int main(){
   return 0;
 }
 void goLeft() {
-  drive_speed(-32, 32);
+  drive_speed(-speed, speed);
 }
 void goStop() {
   drive_speed(0, 0);
 }
 void goRight() {
-  drive_speed(32, -32);
+  drive_speed(speed, -speed);
 }
 void goBackward() {
-  drive_speed(-32, -32);
+  drive_speed(-speed, -speed);
 }
 void goForward() {
-  drive_speed(32, 32);
+  drive_speed(speed, speed);
 }
 
 
 /*
 * Runs in cog
 */
-/*
-void pollPingSensors(void *par) {
+void turetCog(void *par) {
 
   while(1) {
 
-    scanStep();
-    pause(300);
+    if ( isTuretOn == 1 ) {
+      scanStep();
+      pause(100);
+    }
+    else {
 
+      servo_angle(TUR, 900);  // Turn the servo
+
+    }
   }
 }
-*/
+
+void keyboardCog(void *par) {
+
+  term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
+
+  while(1) {
+    // Handle any keystroke navigation
+    c = fdserial_rxTime(term, 50);            // Get character from terminal
+    if(c == 'f') goForward();         // If 'f' then forward
+    if(c == 'b') goBackward();       // If 'b' then backward
+    if(c == 'l') goLeft();        // If 'l' then left
+    if(c == 'r') goRight();        // If 'r' then right
+    if(c == 's') goStop();           // If 's' then stop
+    if(c == 't' ) {
+
+      if ( isTuretOn == 0 ) {
+          isTuretOn = 1;
+      }
+      else {
+
+        isTuretOn = 0;
+      }
+    }
+  }
+}
 /**
 * Retrieves a ping by doing several pings, then getting an average.  The ping from time to time will get
 * a ping with a huge error
