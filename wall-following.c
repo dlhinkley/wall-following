@@ -34,11 +34,13 @@ void goBackward();
 void goForward();
 int getPing();
 void keyboardCog(void *par);
+void findWall();
 
 void turetCog(void *par); // Use a cog to fill range variables with ping distances
 
 int main(){
 
+  term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
  
   // Start the ping cog
   int turetCogPtr    = cogstart(&turetCog, NULL, tstack, sizeof(tstack));
@@ -49,8 +51,11 @@ int main(){
   drive_setRampStep(10);                      // 10 ticks/sec / 20 ms
 
   //drive_ramp(128, 128);                       // Forward 2 RPS
+  dprint(term,"main Start\n"); 
 
   int correction = 0;
+
+  findWall();
 
   // Keep running
   while( isRunning ) {
@@ -59,34 +64,44 @@ int main(){
 
       // Stop if something staight in front
       //
-      if ( ahead <= minWallDist ) {
+      if ( ahead > minWallDist && right <= minWallDist + 1 ) {
   
-        goLeft();
-        isTurningLeft = 1;
+        //goLeft();
+        //isTurningLeft = 1;
       }
-      else if ( right > 0 && isTurningLeft == 1 && right > minWallDist ) {
+      else if ( ahead <= minWallDist ) {
   
-        goForward();
-        isTurningLeft = 0;
+        //goForward();
+        //isTurningLeft = 0;
       }
     }
-    else {
 
-      if (  ahead <= minWallDist ) {
-  
-      //  goLeft();
-      }
-    }
     //printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
-
-
   }
-  servo_stop();                               // Stop servo process
 
+  servo_stop();                               // Stop servo process
+  drive_goto(0,0);
   cogstop( turetCogPtr );
   cogstop( keyboardCogPtr );
 
+  dprint(term,"main End\n"); 
   return 0;
+}
+/*
+* Drive to find the best wall
+*/
+void findWall() {
+
+  dprint(term,"findWall Start\n"); 
+  dprint(term,"findWall ahead=%d minWallDist=%d\n", ahead, minWallDist ); 
+
+  while ( ahead == 0 || ahead > minWallDist ) {
+  
+    goForward();
+
+    dprint(term,"findWall loop ahead=%d minWallDist=%d\n", ahead, minWallDist ); 
+  }
+  dprint(term,"findWall End\n"); 
 }
 void goLeft() {
   drive_speed(-speed, speed);
@@ -109,6 +124,8 @@ void goForward() {
 * Runs in cog
 */
 void turetCog(void *par) {
+
+  dprint(term,"turetCog Start\n"); 
 
   int scanDirection = 1;  // Direction of scan
   int scanPtr = 1;        // Nth angle being scanned
@@ -163,12 +180,15 @@ void turetCog(void *par) {
       right = 0;
       left = 0;
     }
+
   }
+  dprint(term,"turetCog End\n"); 
 }
 
 void keyboardCog(void *par) {
 
-  term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
+  dprint(term,"keyboardCog Start\n"); 
+
   char c = 0;                                   // Stores character input
 
   while( isRunning ) {
@@ -196,6 +216,7 @@ void keyboardCog(void *par) {
 
     if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%s\n",c); 
   }
+  dprint(term,"keyboardCog End\n"); 
 }
 /**
 * Retrieves a ping by doing several pings, then getting an average.  The ping from time to time will get
