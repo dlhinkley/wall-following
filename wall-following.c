@@ -298,6 +298,8 @@ void keyboardCog(void *par) {
 
     if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c); 
 
+    calcCoordinates();  // Check for ticks
+
     keyboardCogInit = 1; // Cog initilized
   }
   dprint(term,"keyboardCog End\n"); 
