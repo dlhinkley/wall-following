@@ -32,6 +32,12 @@ int minWallDist = 20;
 unsigned int tstack[256]; // If things get weird make this number bigger!
 unsigned int kstack[256]; // If things get weird make this number bigger!
 
+int ticksLeft, ticksRight, ticksLeftOld, ticksRightOld;
+static double trackWidth, distancePerCount;
+
+static volatile double heading = 0.0, x = 0.0, y = 0.0, degHeading;
+
+
 void goLeft();
 void goStop();
 void goRight();
@@ -40,7 +46,7 @@ void goForward();
 int getPing();
 void keyboardCog(void *par);
 void findWall();
-
+void calcCoordinates(void);
 void turetCog(void *par); // Use a cog to fill range variables with ping distances
 
 int main(){
@@ -359,4 +365,3 @@ void calcCoordinates(void) {
   if (degHeading < 0) degHeading += 360;
 
 }
-
