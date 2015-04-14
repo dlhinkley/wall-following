@@ -323,6 +323,40 @@ int getPing() {
 }
 
 
+/*
+ * Calculates the coordinates and heading of the robot based on the ticks from the servos
+ */
+void calcCoordinates(void) {
+
+	ticksLeftOld = ticksLeft;
+	ticksRightOld = ticksRight;
+	drive_getTicks(&ticksLeft, &ticksRight);
 
 
+	int deltaTicksLeft = ticksLeft - ticksLeftOld;
+	int deltaTicksRight = ticksRight - ticksRightOld;
+
+	double deltaDistance = 0.5f * (double) (deltaTicksLeft + deltaTicksRight) * distancePerCount;
+	double deltaX = deltaDistance * (double) cos(heading);
+	double deltaY = deltaDistance * (double) sin(heading);
+	double RadiansPerCount = distancePerCount / trackWidth;
+	double deltaHeading = (double) (deltaTicksRight - deltaTicksLeft) * RadiansPerCount;
+
+	x += deltaX;
+	y += deltaY;
+
+	heading += deltaHeading;
+
+	// limit heading to -Pi <= heading < Pi
+	if (heading > PI) {
+		heading -= 2.0 * PI;
+	} else {
+		if (heading <= -PI) {
+			heading += 2.0 * PI;
+		}
+	}
+   degHeading = heading * (180 / PI);
+  if (degHeading < 0) degHeading += 360;
+
+}
 
