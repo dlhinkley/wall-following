@@ -10,26 +10,23 @@
 terminal *term;                               // For full duplex serial terminal
 
 
-int TUR = 17,       // Turet pin
-    PING = 16;      // Ping pin
+int PINGA = 0,
+    PINGL = 16,   
+    PINGR = 17;  
 
 static volatile int ahead = 0, 
                     left = 0, 
                     right = 0,
-                    leftMid = 0, 
-                    rightMid = 0,
                     isRunning = 1,
-                    turetCogInit = 0,
+                    isWallFollowing = 0,
+                    scanCogInit = 0,
                     keyboardCogInit = 0;
 
-int isTurningLeft = 0;
-int isTuretOn = 0;
-
-int speed = 16;
+int speed = 15;
 int speedSlow = 5;
-int minWallDist = 20;
+int minWallDist = 15;
 
-unsigned int tstack[256]; // If things get weird make this number bigger!
+unsigned int sstack[256]; // If things get weird make this number bigger!
 unsigned int kstack[256]; // If things get weird make this number bigger!
 
 void goLeft();
@@ -37,11 +34,11 @@ void goStop();
 void goRight();
 void goBackward();
 void goForward();
-int getPing();
+int getPing(int);
 void keyboardCog(void *par);
 void findWall();
 
-void turetCog(void *par); // Use a cog to fill range variables with ping distances
+void scanCog(void *par); // Use a cog to fill range variables with ping distances
 
 int main(){
 
@@ -49,12 +46,12 @@ int main(){
   term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
  
   // Start the ping cog
-  int turetCogPtr    = cogstart(&turetCog, NULL, tstack, sizeof(tstack));
+  int scanCogPtr    = cogstart(&scanCog, NULL, sstack, sizeof(sstack));
   int keyboardCogPtr = cogstart(&keyboardCog, NULL, kstack, sizeof(kstack));
 
   dprint(term,"main Start\n"); 
 
-  while ( turetCogInit == 0 || keyboardCogInit == 0 ) {
+  while ( scanCogInit == 0 || keyboardCogInit == 0 ) {
 
     // Wait for cogs to initialize
     pause(500);
@@ -68,55 +65,90 @@ int main(){
 
   int correction = 0;
 
-  findWall();
+  //findWall();
 
   dprint(term,"main follow wall start\n"); 
+
+  int speedLeft = speed;
+  int speedRight = speed;
+  int adjustLeft = 0;
+  int adjustRight = 0;
+  int prevErrorRight = 0;
+  int prevErrorLeft = 0;
+
 
   // Keep running
   while( isRunning ) {
 
-    if ( isTuretOn == 1 ) {
-
 /*
-turetCog wait left=46 ahead=19 right=16
-turetCog wait left=46 ahead=36 right=16
-turetCog wait left=46 ahead=36 right=15
-turetCog wait left=46 ahead=17 right=15
-turetCog wait left=44 ahead=17 right=15
-
+scanCog left=40 ahead=19 right=12
+scanCog left=40 ahead=19 right=12
+scanCog left=40 ahead=19 right=12
+scanCog left=41 ahead=19 right=11
+scanCog left=34 ahead=15 right=9
+scanCog left=40 ahead=10 right=9
+Command c=115
+scanCog left=29 ahead=5 right=8
+scanCog left=29 ahead=3 right=8
+scanCog left=29 ahead=3 right=8
+scanCog left=29 ahead=3 right=8
 */
-
+    
+    if ( isWallFollowing   ) {
+  
       // Turn left if about to ht the wall
       //
       if ( ahead <= minWallDist ) {
   
-        goLeft();
+        speedLeft = -speed;
+        speedRight = speed;
+        //dprint(term,"main straight\n"); 
       }
-      // If too far away turn to wall plus buffer
-      else if ( right > minWallDist + 3 ) {
+      // If right is farther than the min distance away
+      else if ( right > minWallDist ) {
+  
+        // If it's just a little off, make a minor correction
+        if ( right < minWallDist * 2 ) {
 
-        goRight();
+          speedRight = speed - (right - minWallDist);
+          speedLeft = speed;
+          //dprint(term,"main light right\n"); 
+        }
+        // Otherwise turn sharp
+        else {
+
+          speedRight = speed;
+          speedLeft = speed + (speed / 2);
+          //dprint(term,"main sharp right\n"); 
+        }
+        
       }
-      // If too close to wall plus buffer
-      else if ( right <= minWallDist - 3 ) {
-
-        goLeft();
+      // If too far right turn slightly left
+      else if ( right <= minWallDist ) {
+                            
+        speedLeft = speed - (minWallDist - right);        
+        //dprint(term,"main too close\n"); 
       }
       // If room to go forward
       else if ( ahead > minWallDist ) {
   
-        goForward();
-        //isTurningLeft = 0;
+        speedLeft = speed;
+        speedRight = speed;
+        //dprint(term,"main forward\n"); 
       }
-    }
 
+      
+      drive_speed(speedLeft, speedRight);
+      //pause(250);
+    }
     //printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
+
   }
   dprint(term,"main follow wall stop\n"); 
 
   servo_stop();                               // Stop servo process
   drive_goto(0,0);
-  cogstop( turetCogPtr );
+  cogstop( scanCogPtr );
   cogstop( keyboardCogPtr );
 
   dprint(term,"main End\n"); 
@@ -130,8 +162,7 @@ void findWall() {
   dprint(term,"findWall Start\n"); 
   dprint(term,"findWall ahead=%d minWallDist=%d\n", ahead, minWallDist ); 
 
-  // Turn turet on
-  isTuretOn = 1;
+  // Turn scan on
 
   // Wait until all sensors are read
   while ( ahead == 0 || left == 0 || right == 0 ) {
@@ -183,80 +214,21 @@ void goForward() {
 /*
 * Runs in cog
 */
-void turetCog(void *par) {
+void scanCog(void *par) {
 
-  dprint(term,"turetCog Start\n"); 
-
-  int scanDirection = 1;  // Direction of scan
-  int scanPtr = 2;        // Nth angle being scanned
-  
-/*
-  int scanAngle[] = {0 ,450, 900, 1350, 1800}; // Angles for the turet to point
-  int scanPing[] = {0 ,0, 0, 0, 0}; // Holds the distance for each direction
-  
-  int rightPtr    = 0; // Angle for right
-  int rightMidPtr = 1; // Angle for right mid
-  int aheadPtr    = 2; // Angle for straight ahead
-  int leftMidPtr  = 3; // Angle for left mid
-  int leftPtr     = 4; // Angle for left
-*/
-  int scanAngle[] = {0, 900, 1800}; // Angles for the turet to point
-  int scanPing[] = {0, 0, 0}; // Holds the distance for each direction
-  
-  int rightPtr    = 0; // Angle for right
-  int aheadPtr    = 1; // Angle for straight ahead
-  int leftPtr     = 2; // Angle for left
+  dprint(term,"scanCog Start\n"); 
 
   while( isRunning ) {
 
-    // If the turret is on, then scan
-    //
-    if ( isTuretOn == 1 ) {
+    ahead = getPing(PINGA);
+    right     = getPing(PINGR);;
+    left      = getPing(PINGL);;
+    scanCogInit = 1; // scan Cog initilized
+    dprint(term,"scanCog left=%d ahead=%d right=%d\n", left, ahead, right); 
 
-      int numAngles = 3;
-    
-      // Set next angle
-      // Change the position of the turet
-      int angle = scanAngle[ scanPtr ];
-    
-      servo_angle(TUR, angle);  // Turn the servo
-      scanPing[ scanPtr ] = getPing();  // Save the ping
-    
-    
-      // If the ptr is greater than the number of positions, go the other way
-      if ( scanPtr + scanDirection == numAngles) {
-
-        scanDirection = -1;
-      }
-      // If the ptr is less than 0, go the other way
-      else if ( scanPtr + scanDirection < 0 ) {
-
-        scanDirection = 1;
-      }   
-      scanPtr += scanDirection;
-
-
-      ahead    = scanPing[ aheadPtr ];
-      left     = scanPing[ leftPtr ];
-      right    = scanPing[ rightPtr ];
-      //leftMid  = scanPing[ leftMidPtr ];
-      //rightMid = scanPing[ rightMidPtr ];
-      pause(50);
-      //dprint(term,"turetCog wait left=%d leftMid=%d ahead=%d rightMid=%d right=%d\n", left, leftMid, ahead, rightMid, right ); 
-      dprint(term,"turetCog wait left=%d ahead=%d right=%d\n", left, ahead, right ); 
-    }
-    else {
-
-      servo_angle(TUR, 900);  // Turn the servo
-      ahead = getPing();
-      right     = 0;
-      left      = 0;
-      //rightMid  = 0;
-      //leftMid   = 0;
-    }
-    turetCogInit = 1; // Turet Cog initilized
+    pause(100);// Keep the print out from getting over run
   }
-  dprint(term,"turetCog End\n"); 
+  dprint(term,"scanCog End\n"); 
 }
 /*
 * Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
@@ -278,17 +250,9 @@ void keyboardCog(void *par) {
     if ( c == 'l' ) goLeft();        // If 'l' then left
     if ( c == 'r' ) goRight();        // If 'r' then right
     if ( c == 's' ) goStop();           // If 's' then stop
-    if ( c == 't' ) {
 
-      if ( isTuretOn == 0 ) {
-          isTuretOn = 1;
-      }
-      else {
-
-      isTuretOn = 0;
-      }
-    }
     if ( c == 'x' ) isRunning = 0;
+    if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
 
     if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c); 
 
@@ -300,7 +264,7 @@ void keyboardCog(void *par) {
 * Retrieves a ping by doing several pings, then getting an average.  The ping from time to time will get
 * a ping with a huge error
 */
-int getPing() {
+int getPing(int port) {
 
   int qty = 5;
   int sum = 0;     // stores sum of elements
@@ -308,7 +272,7 @@ int getPing() {
 
   for ( int i = 0; i < qty; i++ ) {
 
-    int ping = ping_cm( PING );
+    int ping = ping_cm( port );
     sum += ping;
     //printf("Ping %d = %d\n",i,ping);
     //sumsq+= data[i] * data[i];
