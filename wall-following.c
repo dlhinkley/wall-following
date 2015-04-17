@@ -1,21 +1,23 @@
 /*
   Blank Simple Project.c
-  http://learn.parallax.com/propeller-c-tutorials 
+  http://learn.parallax.com/propeller-c-tutorials
 */
-#include "simpletools.h"                      // Include simple tools
-#include "ping.h"                      // Include simple tools
-#include "servo.h"                      // Include simple tools
-#include "abdrive.h"
+//#include "simpletools.h"                      // Include simple tools
+//#include "ping.h"                      // Include simple tools
+//#include "servo.h"                      // Include simple tools
+//#include "abdrive.h"
 
 terminal *term;                               // For full duplex serial terminal
 
 
 int PINGA = 0,
-    PINGL = 16,   
-    PINGR = 17;  
+    PINGL = 16,
+    PINGR = 17;
 
-static volatile int ahead = 0, 
-                    left = 0, 
+double PI =  3.14159265359;
+
+static volatile int ahead = 0,
+                    left = 0,
                     right = 0,
                     isRunning = 1,
                     isWallFollowing = 0,
@@ -57,7 +59,7 @@ int main(){
 
   simpleterm_close();                         // Close default same-cog terminal
   term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
- 
+
   // Start the ping cog
   int scanCogPtrA    = cogstart(&scanCogA, NULL, sstackA, sizeof(sstackA));
   int scanCogPtrL    = cogstart(&scanCogL, NULL, sstackL, sizeof(sstackL));
@@ -65,15 +67,15 @@ int main(){
 
   int keyboardCogPtr = cogstart(&keyboardCog, NULL, kstack, sizeof(kstack));
 
-  dprint(term,"main Start\n"); 
+  dprint(term,"main Start\n");
 
   while ( scanCogInitA == 0 || scanCogInitL == 0 || scanCogInitR == 0 || keyboardCogInit == 0 ) {
 
     // Wait for cogs to initialize
     pause(500);
-    dprint(term,"main Waiting for Cog initialization\n"); 
+    dprint(term,"main Waiting for Cog initialization\n");
   }
-  dprint(term,"All Cogs initialized\n"); 
+  dprint(term,"All Cogs initialized\n");
 
   drive_setRampStep(10);                      // 10 ticks/sec / 20 ms
 
@@ -83,7 +85,7 @@ int main(){
 
   //findWall();
 
-  dprint(term,"main follow wall start\n"); 
+  dprint(term,"main follow wall start\n");
 
   int speedLeft = speed;
   int speedRight = speed;
@@ -95,48 +97,48 @@ int main(){
 
   // Keep running
   while( isRunning ) {
-    //dprint(term,"scanCog left=%d ahead=%d right=%d\n", left, ahead, right); 
-    
+    //dprint(term,"scanCog left=%d ahead=%d right=%d\n", left, ahead, right);
+
     if ( isWallFollowing   ) {
-  
 
-      int wayTooCloseLeft  = ( left  > minWallDist - 2 && left  < minWallDist + 2 ); // 15 | 5 - 8
-      int wayTooCloseRight = ( right > minWallDist - 2 && right < minWallDist + 2 ); // 15 | 5 - 8
-      int wayTooCloseAhead = ( ahead > minWallDist - 2 && ahead < minWallDist + 2 ); // 15 | 5 - 8
 
-      int lilTooCloseLeft  = ( left  > minWallDist - 2 && left  < minWallDist + 2 ); // 15 | 9 - 12
-      int lilTooCloseRight = ( right > minWallDist - 2 && right < minWallDist + 2 ); // 15 | 9 - 12
-      int lilTooCloseAhead = ( ahead > minWallDist - 2 && ahead < minWallDist + 2 ); // 15 | 9 - 12
+      int wayTooCloseLeft  = ( left  >= 0 && left  <= minWallDist - 7 ); // 15 | 5 - 8
+      int wayTooCloseRight = ( right >= 0 && right <= minWallDist - 7 ); // 15 | 5 - 8
+      int wayTooCloseAhead = ( ahead >= 0 && ahead <= minWallDist - 7 ); // 15 | 5 - 8
 
-      int justRightLeft  = ( left  > minWallDist - 2 && left  < minWallDist + 2 ); // 15 | 13 - 17
-      int justRightRight = ( right > minWallDist - 2 && right < minWallDist + 2 ); // 15 | 13 - 17
-      int justRightAhead = ( ahead > minWallDist - 2 && ahead < minWallDist + 2 ); // 15 | 13 - 17
+      int lilTooCloseLeft  = ( left  >= minWallDist - 6 && left  <= minWallDist - 3 ); // 15 | 9 - 12
+      int lilTooCloseRight = ( right >= minWallDist - 6 && right <= minWallDist - 3 ); // 15 | 9 - 12
+      int lilTooCloseAhead = ( ahead >= minWallDist - 6 && ahead <= minWallDist - 3 ); // 15 | 9 - 12
 
-      int wayTooFarLeft  = ( left  > minWallDist - 2 && left  < minWallDist + 2 ); // 15 | 18 - 21
-      int wayTooFarRight = ( right > minWallDist - 2 && right < minWallDist + 2 ); // 15 | 18 - 21
-      int wayTooFarAhead = ( ahead > minWallDist - 2 && ahead < minWallDist + 2 ); // 15 | 18 - 21
+      int justRightLeft  = ( left  >= minWallDist - 2 && left  <= minWallDist + 2 ); // 15 | 13 - 17
+      int justRightRight = ( right >= minWallDist - 2 && right <= minWallDist + 2 ); // 15 | 13 - 17
+      int justRightAhead = ( ahead >= minWallDist - 2 && ahead <= minWallDist + 2 ); // 15 | 13 - 17
 
-      int lilTooFarLeft  = ( left  > minWallDist - 2 && left  < minWallDist + 2 ); // 15 | 22 - 25
-      int lilTooFarRight = ( right > minWallDist - 2 && right < minWallDist + 2 ); // 15 | 22 - 25
-      int lilTooFarAhead = ( ahead > minWallDist - 2 && ahead < minWallDist + 2 ); // 15 | 22 - 25
+      int lilTooFarLeft  = ( left  >= minWallDist + 3 && left  <= minWallDist + 6 ); // 15 | 18 - 21
+      int lilTooFarRight = ( right >= minWallDist + 3 && right <= minWallDist + 6 ); // 15 | 18 - 21
+      int lilTooFarAhead = ( ahead >= minWallDist + 3 && ahead <= minWallDist + 6 ); // 15 | 18 - 21
+
+      int wayTooFarLeft  = ( left  >= minWallDist + 7  ); // 15 | 22 - ~
+      int wayTooFarRight = ( right >= minWallDist + 7  ); // 15 | 22 - ~
+      int wayTooFarAhead = ( ahead >= minWallDist + 7  ); // 15 | 22 - ~
 
       // Turn left if about to ht the wall
       //
       if ( ahead <= minWallDist ) {
-  
+
         speedLeft = -speed;
         speedRight = speed;
-        //dprint(term,"main straight\n"); 
+        //dprint(term,"main straight\n");
       }
       // If right is farther than the min distance away
       else if ( right > minWallDist ) {
-  
+
         // If it's just a little off, make a minor correction
         if ( right < minWallDist * 2 ) {
 
           speedRight = speed - (right - minWallDist );
           speedLeft = speed;
-          //dprint(term,"main light right\n"); 
+          //dprint(term,"main light right\n");
         }
         // Otherwise it's a corner, turn sharp
         else {
@@ -158,32 +160,32 @@ int main(){
           // Keep going straigt
           speedRight = speed;
           speedLeft = speed;
-          //dprint(term,"main sharp right\n"); 
+          //dprint(term,"main sharp right\n");
         }
-        
+
       }
       // If too far right turn slightly left
       else if ( right <= minWallDist ) {
-                            
-        speedLeft = speed - (minWallDist - right );        
-        //dprint(term,"main too close\n"); 
+
+        speedLeft = speed - (minWallDist - right );
+        //dprint(term,"main too close\n");
       }
       // If room to go forward
       else if ( ahead > minWallDist ) {
-  
+
         speedLeft = speed;
         speedRight = speed;
-        //dprint(term,"main forward\n"); 
+        //dprint(term,"main forward\n");
       }
 
-      
+
       drive_speed(speedLeft, speedRight);
       //pause(250);
     }
     //printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
 
   }
-  dprint(term,"main follow wall stop\n"); 
+  dprint(term,"main follow wall stop\n");
 
   servo_stop();                               // Stop servo process
   drive_goto(0,0);
@@ -192,7 +194,7 @@ int main(){
   cogstop( scanCogPtrR );
   cogstop( keyboardCogPtr );
 
-  dprint(term,"main End\n"); 
+  dprint(term,"main End\n");
   return 0;
 }
 /*
@@ -200,8 +202,8 @@ int main(){
 */
 void findWall() {
 
-  dprint(term,"findWall Start\n"); 
-  dprint(term,"findWall ahead=%d minWallDist=%d\n", ahead, minWallDist ); 
+  dprint(term,"findWall Start\n");
+  dprint(term,"findWall ahead=%d minWallDist=%d\n", ahead, minWallDist );
 
   // Turn scan on
 
@@ -216,24 +218,24 @@ void findWall() {
     goBackward();
     // keep going backward  until not so close
     while ( ahead < minWallDist ) {
-  
+
     }
   }
   // If we're not against the wall, go forward until at wall
   else {
 
     goForward();
-  
+
     // Drive forward until find the wall
     while ( ahead > minWallDist ) {
-    
+
       // wait for wall
     }
   }
   goStop();
 
 
-  dprint(term,"findWall End\n"); 
+  dprint(term,"findWall End\n");
 }
 void goLeft() {
   drive_speed(-speed, speed);
@@ -257,36 +259,36 @@ void goForward() {
 */
 void scanCogA(void *par) {
 
-  dprint(term,"scanCogA Start\n"); 
+  dprint(term,"scanCogA Start\n");
 
   while( isRunning ) {
 
     ahead = getPing(PINGA);
     scanCogInitA = 1; // scan Cog initilized
   }
-  dprint(term,"scanCogA End\n"); 
+  dprint(term,"scanCogA End\n");
 }
 void scanCogL(void *par) {
 
-  dprint(term,"scanCogL Start\n"); 
+  dprint(term,"scanCogL Start\n");
 
   while( isRunning ) {
 
     left = getPing(PINGL);
     scanCogInitL = 1; // scan Cog initilized
   }
-  dprint(term,"scanCogL End\n"); 
+  dprint(term,"scanCogL End\n");
 }
 void scanCogR(void *par) {
 
-  dprint(term,"scanCogR Start\n"); 
+  dprint(term,"scanCogR Start\n");
 
   while( isRunning ) {
 
     right = getPing(PINGR);
     scanCogInitR = 1; // scan Cog initilized
   }
-  dprint(term,"scanCogR End\n"); 
+  dprint(term,"scanCogR End\n");
 }
 
 /*
@@ -294,7 +296,7 @@ void scanCogR(void *par) {
 */
 void keyboardCog(void *par) {
 
-  dprint(term,"keyboardCog Start\n"); 
+  dprint(term,"keyboardCog Start\n");
 
   char c = 0;                                   // Stores character input
 
@@ -313,13 +315,13 @@ void keyboardCog(void *par) {
     if ( c == 'x' ) isRunning = 0;
     if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
 
-    if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c); 
+    if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
 
     calcCoordinates();  // Check for ticks
 
     keyboardCogInit = 1; // Cog initilized
   }
-  dprint(term,"keyboardCog End\n"); 
+  dprint(term,"keyboardCog End\n");
 }
 /**
 * Retrieves a ping by doing several pings, then getting an average.  The ping from time to time will get
@@ -338,7 +340,7 @@ int getPing(int port) {
     //printf("Ping %d = %d\n",i,ping);
     //sumsq+= data[i] * data[i];
   }
-  int mean = sum / qty; 
+  int mean = sum / qty;
   //int varience = sumsq / size - mean * mean;
   //printf("The mean is: %d\n", mean);
   //printf("Variance is: %d\n", varience);
