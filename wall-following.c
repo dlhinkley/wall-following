@@ -112,14 +112,7 @@ int wayTooClose = 1,
     rightCond = 0,
     aheadCond = 0;
     
-    int a[5][4] = {  
-    	 // left,      ahead,       right,       action
-	 {wayTooClose, wayTooClose, wayTooClose, &action} ,   
-	 {wayTooClose, wayTooClose, lilTooClose, &action} ,   
-	 {wayTooClose, wayTooClose, justRight,   &action} ,   
-	 {wayTooClose, wayTooClose, lilTooFar,   &action} ,   
-	 {wayTooClose, wayTooClose, wayTooFar,   &action} ,   
-	};
+    
       if ( left  >= 0 && left  <= minWallDist - 7 ) leftCond  = wayTooClose; // 15 | 5 - 8
       if ( right >= 0 && right <= minWallDist - 7 ) rightCond = wayTooClose; // 15 | 5 - 8
       if ( ahead >= 0 && ahead <= minWallDist - 7 ) aheadCond = wayTooClose; // 15 | 5 - 8
@@ -139,6 +132,24 @@ int wayTooClose = 1,
       if ( left  >= minWallDist + 7  ) leftCond  = wayTooFar; // 15 | 22 - ~
       if ( right >= minWallDist + 7  ) rightCond = wayTooFar; // 15 | 22 - ~
       if ( ahead >= minWallDist + 7  ) aheadCond = wayTooFar; // 15 | 22 - ~
+
+
+       if ( leftCond == wayTooClose ) {
+
+        }
+        else if ( leftCond == lilTooClose ) {
+
+        }
+        else if ( leftCond == justRight ) {
+
+        }
+        else if ( leftCond == lilTooFar ) {
+
+        }
+        else if ( leftCond == wayTooFar ) {
+
+        }
+
 
       // Turn left if about to ht the wall
       //
