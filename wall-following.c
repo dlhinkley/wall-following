@@ -30,7 +30,8 @@ int speed = 15;
 int speedSlow = 5;
 int minWallDist = 10;
 
-
+int speedLeft = 0;
+int speedRight = 0;
 
 unsigned int sstackA[256]; // If things get weird make this number bigger!
 unsigned int sstackL[256]; // If things get weird make this number bigger!
@@ -43,19 +44,208 @@ static double trackWidth, distancePerCount;
 static volatile double heading = 0.0, x = 0.0, y = 0.0, degHeading;
 
 
-void goLeft();
-void goStop();
-void goRight();
-void goBackward();
-void goForward();
-int getPing(int);
-void keyboardCog(void *par);
-void findWall();
 
-void calcCoordinates(void);
-void scanCogA(void *par); // Use a cog to fill range variables with ping distances
-void scanCogL(void *par); // Use a cog to fill range variables with ping distances
-void scanCogR(void *par); // Use a cog to fill range variables with ping distances
+
+
+/*
+* Drive to find the best wall
+*/
+void findWall() {
+
+  dprint(term,"findWall Start\n");
+  dprint(term,"findWall ahead=%d minWallDist=%d\n", ahead, minWallDist );
+
+  // Turn scan on
+
+  // Wait until all sensors are read
+  while ( ahead == 0 || left == 0 || right == 0 ) {
+
+  }
+
+  // If we're against the wall, backup
+  if ( ahead < minWallDist ) {
+
+    goBackward();
+    // keep going backward  until not so close
+    while ( ahead < minWallDist ) {
+
+    }
+  }
+  // If we're not against the wall, go forward until at wall
+  else {
+
+    goForward();
+
+    // Drive forward until find the wall
+    while ( ahead > minWallDist ) {
+
+      // wait for wall
+    }
+  }
+  goStop();
+
+
+  dprint(term,"findWall End\n");
+}
+void goLeft() {
+  drive_speed(-speed, speed);
+}
+void goStop() {
+  drive_speed(0, 0);
+}
+void goRight() {
+  drive_speed(speed, -speed);
+}
+void goBackward() {
+  drive_speed(-speed, -speed);
+}
+void goForward() {
+  drive_speed(speed, speed);
+}
+
+
+/*
+* Runs in cog
+*/
+void scanCogA(void *par) {
+
+  dprint(term,"scanCogA Start\n");
+
+  while( isRunning ) {
+
+    ahead = getPing(PINGA);
+    scanCogInitA = 1; // scan Cog initilized
+  }
+  dprint(term,"scanCogA End\n");
+}
+void scanCogL(void *par) {
+
+  dprint(term,"scanCogL Start\n");
+
+  while( isRunning ) {
+
+    left = getPing(PINGL);
+    scanCogInitL = 1; // scan Cog initilized
+  }
+  dprint(term,"scanCogL End\n");
+}
+void scanCogR(void *par) {
+
+  dprint(term,"scanCogR Start\n");
+
+  while( isRunning ) {
+
+    right = getPing(PINGR);
+    scanCogInitR = 1; // scan Cog initilized
+  }
+  dprint(term,"scanCogR End\n");
+}
+
+/*
+* Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
+*/
+void keyboardCog(void *par) {
+
+  dprint(term,"keyboardCog Start\n");
+
+  char c = 0;                                   // Stores character input
+
+  while( isRunning ) {
+
+    // Handle any keystroke navigation
+    c = fdserial_rxTime(term, 50);            // Get character from terminal
+
+
+    if ( c == 'f' ) goForward();         // If 'f' then forward
+    if ( c == 'b' ) goBackward();       // If 'b' then backward
+    if ( c == 'l' ) goLeft();        // If 'l' then left
+    if ( c == 'r' ) goRight();        // If 'r' then right
+    if ( c == 's' ) goStop();           // If 's' then stop
+
+    if ( c == 'x' ) isRunning = 0;
+    if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
+
+    if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
+
+    calcCoordinates();  // Check for ticks
+
+    keyboardCogInit = 1; // Cog initilized
+  }
+  dprint(term,"keyboardCog End\n");
+}
+/**
+* Retrieves a ping by doing several pings, then getting an average.  The ping from time to time will get
+* a ping with a huge error
+*/
+int getPing(int port) {
+
+  int qty = 5;
+  int sum = 0;     // stores sum of elements
+  //int sumsq = 0; // stores sum of squares
+
+  for ( int i = 0; i < qty; i++ ) {
+
+    int ping = ping_cm( port );
+    sum += ping;
+    //printf("Ping %d = %d\n",i,ping);
+    //sumsq+= data[i] * data[i];
+  }
+  int mean = sum / qty;
+  //int varience = sumsq / size - mean * mean;
+  //printf("The mean is: %d\n", mean);
+  //printf("Variance is: %d\n", varience);
+  //  printf("Returned mean= %d\n", mean);
+
+  return mean;
+}
+
+
+/*
+ * Calculates the coordinates and heading of the robot based on the ticks from the servos
+ */
+void calcCoordinates(void) {
+
+	ticksLeftOld = ticksLeft;
+	ticksRightOld = ticksRight;
+	drive_getTicks(&ticksLeft, &ticksRight);
+
+
+	int deltaTicksLeft = ticksLeft - ticksLeftOld;
+	int deltaTicksRight = ticksRight - ticksRightOld;
+
+	double deltaDistance = 0.5f * (double) (deltaTicksLeft + deltaTicksRight) * distancePerCount;
+	double deltaX = deltaDistance * (double) cos(heading);
+	double deltaY = deltaDistance * (double) sin(heading);
+	double RadiansPerCount = distancePerCount / trackWidth;
+	double deltaHeading = (double) (deltaTicksRight - deltaTicksLeft) * RadiansPerCount;
+
+	x += deltaX;
+	y += deltaY;
+
+	heading += deltaHeading;
+
+	// limit heading to -Pi <= heading < Pi
+	if (heading > PI) {
+		heading -= 2.0 * PI;
+	} else {
+		if (heading <= -PI) {
+			heading += 2.0 * PI;
+		}
+	}
+   degHeading = heading * (180 / PI);
+  if (degHeading < 0) degHeading += 360;
+
+}
+void actionTrapped() {
+
+	// stop
+	speedRight = 0;
+	speedLeft. = 0;
+}
+void actionBackUp90Right() {
+
+
+}
 
 int main(){
 
@@ -89,8 +279,8 @@ int main(){
 
   dprint(term,"main follow wall start\n");
 
-  int speedLeft = speed;
-  int speedRight = speed;
+  speedLeft = speed;
+  speedRight = speed;
   int adjustLeft = 0;
   int adjustRight = 0;
   int prevErrorRight = 0;
@@ -103,14 +293,14 @@ int main(){
 
     if ( isWallFollowing   ) {
 
-int wayTooClose = 1,
-    lilTooClose = 2,
-    justRight = 3,
-    lilTooFar = 4,
-    wayTooFar = 5,
-    leftCond = 0,
-    rightCond = 0,
-    aheadCond = 0;
+		int wayTooClose = 1,
+		    lilTooClose = 2,
+		    justRight = 3,
+		    lilTooFar = 4,
+		    wayTooFar = 5,
+		    leftCond = 0,
+		    rightCond = 0,
+		    aheadCond = 0;
     
     
       if ( left  >= 0 && left  <= minWallDist - 7 ) leftCond  = wayTooClose; // 15 | 5 - 8
@@ -140,92 +330,92 @@ int wayTooClose = 1,
 	        
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == lilTooClose ) {
 
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == justRight ) {
 
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == lilTooFar ) {
 
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == wayTooFar ) {
@@ -258,69 +448,69 @@ int wayTooClose = 1,
 	        
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == lilTooClose ) {
 
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == justRight ) {
 
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == lilTooFar ) {
@@ -376,69 +566,69 @@ int wayTooClose = 1,
 	        
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == lilTooClose ) {
 
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == justRight ) {
 
 		        if ( rightCond == wayTooClose ) {
 		        
-		        	action();
+		        	actionTrapped();
 		        }
 		        else if ( rightCond == lilTooClose ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == justRight ) {
 		
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == lilTooFar ) {
 			
-					action();
+					actionTrapped();
 		        }
 		        else if ( rightCond == wayTooFar ) {
 		        
-					action();
+					actionBackUp90Right();
 		        }
 	        }
 	        else if ( aheadCond == lilTooFar ) {
@@ -800,193 +990,4 @@ int wayTooClose = 1,
 
   dprint(term,"main End\n");
   return 0;
-}
-/*
-* Drive to find the best wall
-*/
-void findWall() {
-
-  dprint(term,"findWall Start\n");
-  dprint(term,"findWall ahead=%d minWallDist=%d\n", ahead, minWallDist );
-
-  // Turn scan on
-
-  // Wait until all sensors are read
-  while ( ahead == 0 || left == 0 || right == 0 ) {
-
-  }
-
-  // If we're against the wall, backup
-  if ( ahead < minWallDist ) {
-
-    goBackward();
-    // keep going backward  until not so close
-    while ( ahead < minWallDist ) {
-
-    }
-  }
-  // If we're not against the wall, go forward until at wall
-  else {
-
-    goForward();
-
-    // Drive forward until find the wall
-    while ( ahead > minWallDist ) {
-
-      // wait for wall
-    }
-  }
-  goStop();
-
-
-  dprint(term,"findWall End\n");
-}
-void goLeft() {
-  drive_speed(-speed, speed);
-}
-void goStop() {
-  drive_speed(0, 0);
-}
-void goRight() {
-  drive_speed(speed, -speed);
-}
-void goBackward() {
-  drive_speed(-speed, -speed);
-}
-void goForward() {
-  drive_speed(speed, speed);
-}
-
-
-/*
-* Runs in cog
-*/
-void scanCogA(void *par) {
-
-  dprint(term,"scanCogA Start\n");
-
-  while( isRunning ) {
-
-    ahead = getPing(PINGA);
-    scanCogInitA = 1; // scan Cog initilized
-  }
-  dprint(term,"scanCogA End\n");
-}
-void scanCogL(void *par) {
-
-  dprint(term,"scanCogL Start\n");
-
-  while( isRunning ) {
-
-    left = getPing(PINGL);
-    scanCogInitL = 1; // scan Cog initilized
-  }
-  dprint(term,"scanCogL End\n");
-}
-void scanCogR(void *par) {
-
-  dprint(term,"scanCogR Start\n");
-
-  while( isRunning ) {
-
-    right = getPing(PINGR);
-    scanCogInitR = 1; // scan Cog initilized
-  }
-  dprint(term,"scanCogR End\n");
-}
-
-/*
-* Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
-*/
-void keyboardCog(void *par) {
-
-  dprint(term,"keyboardCog Start\n");
-
-  char c = 0;                                   // Stores character input
-
-  while( isRunning ) {
-
-    // Handle any keystroke navigation
-    c = fdserial_rxTime(term, 50);            // Get character from terminal
-
-
-    if ( c == 'f' ) goForward();         // If 'f' then forward
-    if ( c == 'b' ) goBackward();       // If 'b' then backward
-    if ( c == 'l' ) goLeft();        // If 'l' then left
-    if ( c == 'r' ) goRight();        // If 'r' then right
-    if ( c == 's' ) goStop();           // If 's' then stop
-
-    if ( c == 'x' ) isRunning = 0;
-    if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
-
-    if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
-
-    calcCoordinates();  // Check for ticks
-
-    keyboardCogInit = 1; // Cog initilized
-  }
-  dprint(term,"keyboardCog End\n");
-}
-/**
-* Retrieves a ping by doing several pings, then getting an average.  The ping from time to time will get
-* a ping with a huge error
-*/
-int getPing(int port) {
-
-  int qty = 5;
-  int sum = 0;     // stores sum of elements
-  //int sumsq = 0; // stores sum of squares
-
-  for ( int i = 0; i < qty; i++ ) {
-
-    int ping = ping_cm( port );
-    sum += ping;
-    //printf("Ping %d = %d\n",i,ping);
-    //sumsq+= data[i] * data[i];
-  }
-  int mean = sum / qty;
-  //int varience = sumsq / size - mean * mean;
-  //printf("The mean is: %d\n", mean);
-  //printf("Variance is: %d\n", varience);
-  //  printf("Returned mean= %d\n", mean);
-
-  return mean;
-}
-
-
-/*
- * Calculates the coordinates and heading of the robot based on the ticks from the servos
- */
-void calcCoordinates(void) {
-
-	ticksLeftOld = ticksLeft;
-	ticksRightOld = ticksRight;
-	drive_getTicks(&ticksLeft, &ticksRight);
-
-
-	int deltaTicksLeft = ticksLeft - ticksLeftOld;
-	int deltaTicksRight = ticksRight - ticksRightOld;
-
-	double deltaDistance = 0.5f * (double) (deltaTicksLeft + deltaTicksRight) * distancePerCount;
-	double deltaX = deltaDistance * (double) cos(heading);
-	double deltaY = deltaDistance * (double) sin(heading);
-	double RadiansPerCount = distancePerCount / trackWidth;
-	double deltaHeading = (double) (deltaTicksRight - deltaTicksLeft) * RadiansPerCount;
-
-	x += deltaX;
-	y += deltaY;
-
-	heading += deltaHeading;
-
-	// limit heading to -Pi <= heading < Pi
-	if (heading > PI) {
-		heading -= 2.0 * PI;
-	} else {
-		if (heading <= -PI) {
-			heading += 2.0 * PI;
-		}
-	}
-   degHeading = heading * (180 / PI);
-  if (degHeading < 0) degHeading += 360;
-
-}
+} 
