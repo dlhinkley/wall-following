@@ -30,14 +30,7 @@ int speed = 15;
 int speedSlow = 5;
 int minWallDist = 10;
 
-int wayTooClose = 1,
-    lilTooClose = 2,
-    justRight = 3,
-    lilTooFar = 4,
-    wayTooFar = 5,
-    leftCond = 0,
-    rightCond = 0,
-    aheadCond = 0;
+
 
 unsigned int sstackA[256]; // If things get weird make this number bigger!
 unsigned int sstackL[256]; // If things get weird make this number bigger!
@@ -110,8 +103,23 @@ int main(){
 
     if ( isWallFollowing   ) {
 
-in
-
+int wayTooClose = 1,
+    lilTooClose = 2,
+    justRight = 3,
+    lilTooFar = 4,
+    wayTooFar = 5,
+    leftCond = 0,
+    rightCond = 0,
+    aheadCond = 0;
+    
+    int a[5][4] = {  
+    	 // left,      ahead,       right,       action
+	 {wayTooClose, wayTooClose, wayTooClose, &action} ,   
+	 {wayTooClose, wayTooClose, lilTooClose, &action} ,   
+	 {wayTooClose, wayTooClose, justRight,   &action} ,   
+	 {wayTooClose, wayTooClose, lilTooFar,   &action} ,   
+	 {wayTooClose, wayTooClose, wayTooFar,   &action} ,   
+	};
       if ( left  >= 0 && left  <= minWallDist - 7 ) leftCond  = wayTooClose; // 15 | 5 - 8
       if ( right >= 0 && right <= minWallDist - 7 ) rightCond = wayTooClose; // 15 | 5 - 8
       if ( ahead >= 0 && ahead <= minWallDist - 7 ) aheadCond = wayTooClose; // 15 | 5 - 8
