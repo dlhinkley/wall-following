@@ -2,10 +2,10 @@
   Blank Simple Project.c
   http://learn.parallax.com/propeller-c-tutorials
 */
-//#include "simpletools.h"                      // Include simple tools
-//#include "ping.h"                      // Include simple tools
-//#include "servo.h"                      // Include simple tools
-//#include "abdrive.h"
+#include "simpletools.h"                      // Include simple tools
+#include "ping.h"                      // Include simple tools
+#include "servo.h"                      // Include simple tools
+#include "abdrive.h"
 
 terminal *term;                               // For full duplex serial terminal
 
@@ -29,6 +29,15 @@ static volatile int ahead = 0,
 int speed = 15;
 int speedSlow = 5;
 int minWallDist = 10;
+
+int wayTooClose = 1,
+    lilTooClose = 2,
+    justRight = 3,
+    lilTooFar = 4,
+    wayTooFar = 5,
+    leftCond = 0,
+    rightCond = 0,
+    aheadCond = 0;
 
 unsigned int sstackA[256]; // If things get weird make this number bigger!
 unsigned int sstackL[256]; // If things get weird make this number bigger!
@@ -101,26 +110,27 @@ int main(){
 
     if ( isWallFollowing   ) {
 
+in
 
-      int wayTooCloseLeft  = ( left  >= 0 && left  <= minWallDist - 7 ); // 15 | 5 - 8
-      int wayTooCloseRight = ( right >= 0 && right <= minWallDist - 7 ); // 15 | 5 - 8
-      int wayTooCloseAhead = ( ahead >= 0 && ahead <= minWallDist - 7 ); // 15 | 5 - 8
+      if ( left  >= 0 && left  <= minWallDist - 7 ) leftCond  = wayTooClose; // 15 | 5 - 8
+      if ( right >= 0 && right <= minWallDist - 7 ) rightCond = wayTooClose; // 15 | 5 - 8
+      if ( ahead >= 0 && ahead <= minWallDist - 7 ) aheadCond = wayTooClose; // 15 | 5 - 8
 
-      int lilTooCloseLeft  = ( left  >= minWallDist - 6 && left  <= minWallDist - 3 ); // 15 | 9 - 12
-      int lilTooCloseRight = ( right >= minWallDist - 6 && right <= minWallDist - 3 ); // 15 | 9 - 12
-      int lilTooCloseAhead = ( ahead >= minWallDist - 6 && ahead <= minWallDist - 3 ); // 15 | 9 - 12
+      if ( left  >= minWallDist - 6 && left  <= minWallDist - 3 ) leftCond = lilTooClose; // 15 | 9 - 12
+      if ( right >= minWallDist - 6 && right <= minWallDist - 3 ) rightCond = lilTooClose; // 15 | 9 - 12
+      if ( ahead >= minWallDist - 6 && ahead <= minWallDist - 3 ) aheadCond = lilTooClose; // 15 | 9 - 12
 
-      int justRightLeft  = ( left  >= minWallDist - 2 && left  <= minWallDist + 2 ); // 15 | 13 - 17
-      int justRightRight = ( right >= minWallDist - 2 && right <= minWallDist + 2 ); // 15 | 13 - 17
-      int justRightAhead = ( ahead >= minWallDist - 2 && ahead <= minWallDist + 2 ); // 15 | 13 - 17
+      if ( left  >= minWallDist - 2 && left  <= minWallDist + 2 ) leftCond  = justRight; // 15 | 13 - 17
+      if ( right >= minWallDist - 2 && right <= minWallDist + 2 ) rightCond = justRight; // 15 | 13 - 17
+      if ( ahead >= minWallDist - 2 && ahead <= minWallDist + 2 ) aheadCond = justRight; // 15 | 13 - 17
 
-      int lilTooFarLeft  = ( left  >= minWallDist + 3 && left  <= minWallDist + 6 ); // 15 | 18 - 21
-      int lilTooFarRight = ( right >= minWallDist + 3 && right <= minWallDist + 6 ); // 15 | 18 - 21
-      int lilTooFarAhead = ( ahead >= minWallDist + 3 && ahead <= minWallDist + 6 ); // 15 | 18 - 21
+      if ( left  >= minWallDist + 3 && left  <= minWallDist + 6 ) leftCond  = lilTooFar; // 15 | 18 - 21
+      if ( right >= minWallDist + 3 && right <= minWallDist + 6 ) rightCond = lilTooFar; // 15 | 18 - 21
+      if ( ahead >= minWallDist + 3 && ahead <= minWallDist + 6 ) aheadCond = lilTooFar; // 15 | 18 - 21
 
-      int wayTooFarLeft  = ( left  >= minWallDist + 7  ); // 15 | 22 - ~
-      int wayTooFarRight = ( right >= minWallDist + 7  ); // 15 | 22 - ~
-      int wayTooFarAhead = ( ahead >= minWallDist + 7  ); // 15 | 22 - ~
+      if ( left  >= minWallDist + 7  ) leftCond  = wayTooFar; // 15 | 22 - ~
+      if ( right >= minWallDist + 7  ) rightCond = wayTooFar; // 15 | 22 - ~
+      if ( ahead >= minWallDist + 7  ) aheadCond = wayTooFar; // 15 | 22 - ~
 
       // Turn left if about to ht the wall
       //
