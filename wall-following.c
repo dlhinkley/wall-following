@@ -134,20 +134,595 @@ int wayTooClose = 1,
       if ( ahead >= minWallDist + 7  ) aheadCond = wayTooFar; // 15 | 22 - ~
 
 
-       if ( leftCond == wayTooClose ) {
+        if ( leftCond == wayTooClose ) {
 
+	        if ( aheadCond == wayTooClose ) {
+	        
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooClose ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == justRight ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == wayTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
         }
         else if ( leftCond == lilTooClose ) {
 
+	        if ( aheadCond == wayTooClose ) {
+	        
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooClose ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == justRight ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == wayTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
         }
         else if ( leftCond == justRight ) {
 
+	        if ( aheadCond == wayTooClose ) {
+	        
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooClose ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == justRight ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == wayTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
         }
         else if ( leftCond == lilTooFar ) {
 
+	        if ( aheadCond == wayTooClose ) {
+	        
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooClose ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == justRight ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == wayTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
         }
         else if ( leftCond == wayTooFar ) {
 
+	        if ( aheadCond == wayTooClose ) {
+	        
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooClose ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == justRight ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == lilTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
+	        else if ( aheadCond == wayTooFar ) {
+
+		        if ( rightCond == wayTooClose ) {
+		        
+		        	action();
+		        }
+		        else if ( rightCond == lilTooClose ) {
+		
+					action();
+		        }
+		        else if ( rightCond == justRight ) {
+		
+					action();
+		        }
+		        else if ( rightCond == lilTooFar ) {
+			
+					action();
+		        }
+		        else if ( rightCond == wayTooFar ) {
+		        
+					action();
+		        }
+	        }
         }
 
 
