@@ -240,13 +240,62 @@ void actionTrapped() {
 
 	// stop
 	speedRight = 0;
-	speedLeft. = 0;
+	speedLeft  = 0;
 }
 void actionBackUp90Right() {
 
+	// backup until ahead is just right
+	// turn 90 to right
+	// drive forward
 
 }
+void actionForward() {
 
+	speedRight = speed;
+	speedLeft  = speed;
+}
+void actionRightOn() {
+
+  // correct based on dynamic adjustment right or left of right
+  // 15 - 14 = 1 too close so right should go faster
+  // 15 - 16 = -1 too far so right should go slower
+  	int adj = (minWallDist - right) ;
+	speedRight = speed + adj;
+	speedLeft = speed;
+}
+void actionLeftOn() {
+
+  // correct based on dynamic adjustment right or left of right
+  // 15 - 14 = 1 too close so left should go faster
+  // 15 - 16 = -1 too far so left should go slower
+  	int adj = (minWallDist - left) ;
+	speedRight = speed;
+	speedLeft = speed + adj;
+}
+void actionRightWayClose() {
+
+  	int adj = 8;
+	speedRight = speed + adj;
+	speedLeft = speed;
+}
+void actionRightLilClose() {
+
+  	int adj = 5;
+	speedRight = speed + adj;
+	speedLeft = speed;
+}
+void actionRightLilFar() {
+
+  	int adj = 5;
+	speedRight = speed;
+	speedLeft = speed + adj;
+}
+void actionRightWayFar() {
+
+  	int adj = 8;
+	speedRight = speed;
+	speedLeft = speed + adj;
+}
 int main(){
 
   simpleterm_close();                         // Close default same-cog terminal
@@ -328,590 +377,215 @@ int main(){
 
 	        if ( aheadCond == wayTooClose ) {
 	        
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == lilTooClose ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == justRight ) {
-
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+	        
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == lilTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == wayTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
         }
         else if ( leftCond == lilTooClose ) {
 
 	        if ( aheadCond == wayTooClose ) {
 	        
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == lilTooClose ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == justRight ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == lilTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == wayTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
         }
         else if ( leftCond == justRight ) {
 
 	        if ( aheadCond == wayTooClose ) {
 	        
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == lilTooClose ) {
-
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+	        
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == justRight ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	actionTrapped();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					actionTrapped();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					actionTrapped();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					actionBackUp90Right();
-		        }
+		        if ( rightCond == wayTooClose ) actionTrapped();
+		        if ( rightCond == lilTooClose ) actionTrapped();
+		        if ( rightCond == justRight   ) actionTrapped();
+		        if ( rightCond == lilTooFar   ) actionTrapped();
+		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
 	        else if ( aheadCond == lilTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == wayTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
         }
         else if ( leftCond == lilTooFar ) {
 
 	        if ( aheadCond == wayTooClose ) {
 	        
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == lilTooClose ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == justRight ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == lilTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == wayTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
         }
         else if ( leftCond == wayTooFar ) {
 
 	        if ( aheadCond == wayTooClose ) {
 	        
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == lilTooClose ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == justRight ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) action();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == lilTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) action();
+		        if ( rightCond == lilTooClose ) action();
+		        if ( rightCond == justRight   ) actionRightOn();
+		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == wayTooFar   ) action();
 	        }
 	        else if ( aheadCond == wayTooFar ) {
 
-		        if ( rightCond == wayTooClose ) {
-		        
-		        	action();
-		        }
-		        else if ( rightCond == lilTooClose ) {
-		
-					action();
-		        }
-		        else if ( rightCond == justRight ) {
-		
-					action();
-		        }
-		        else if ( rightCond == lilTooFar ) {
-			
-					action();
-		        }
-		        else if ( rightCond == wayTooFar ) {
-		        
-					action();
-		        }
+		        if ( rightCond == wayTooClose ) actionRightWayClose();
+		        if ( rightCond == lilTooClose ) actionRightLilClose();
+		        if ( rightCond == justRight   ) actionRightOn();
+		        if ( rightCond == lilTooFar   ) actionRightLilFar();
+		        if ( rightCond == wayTooFar   ) actionRightWayFar();
 	        }
         }
 
