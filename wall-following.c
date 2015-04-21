@@ -14,7 +14,6 @@ int PINGA = 0,
     PINGL = 16,
     PINGR = 17;
 
-double PI =  3.14159265359;
 
 static volatile int ahead = 0,
                     left = 0,
@@ -33,10 +32,10 @@ int minWallDist = 10;
 int speedLeft = 0;
 int speedRight = 0;
 
-unsigned int sstackA[256]; // If things get weird make this number bigger!
-unsigned int sstackL[256]; // If things get weird make this number bigger!
-unsigned int sstackR[256]; // If things get weird make this number bigger!
-unsigned int kstack[256]; // If things get weird make this number bigger!
+unsigned int sstackA[40 + 20]; // If things get weird make this number bigger!
+unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
+unsigned int sstackR[40 + 20]; // If things get weird make this number bigger!
+unsigned int kstack[40 + 30]; // If things get weird make this number bigger!
 
 int ticksLeft, ticksRight, ticksLeftOld, ticksRightOld;
 static double trackWidth, distancePerCount;
@@ -46,10 +45,26 @@ static volatile double heading = 0.0, x = 0.0, y = 0.0, degHeading;
 
 
 
+void goLeft() {
+  drive_speed(-speed, speed);
+}
+void goStop() {
+  drive_speed(0, 0);
+}
+void goRight() {
+  drive_speed(speed, -speed);
+}
+void goBackward() {
+  drive_speed(-speed, -speed);
+}
+void goForward() {
+  drive_speed(speed, speed);
+}
 
 /*
 * Drive to find the best wall
 */
+/*
 void findWall() {
 
   dprint(term,"findWall Start\n");
@@ -87,92 +102,7 @@ void findWall() {
 
   dprint(term,"findWall End\n");
 }
-void goLeft() {
-  drive_speed(-speed, speed);
-}
-void goStop() {
-  drive_speed(0, 0);
-}
-void goRight() {
-  drive_speed(speed, -speed);
-}
-void goBackward() {
-  drive_speed(-speed, -speed);
-}
-void goForward() {
-  drive_speed(speed, speed);
-}
-
-
-/*
-* Runs in cog
 */
-void scanCogA(void *par) {
-
-  dprint(term,"scanCogA Start\n");
-
-  while( isRunning ) {
-
-    ahead = getPing(PINGA);
-    scanCogInitA = 1; // scan Cog initilized
-  }
-  dprint(term,"scanCogA End\n");
-}
-void scanCogL(void *par) {
-
-  dprint(term,"scanCogL Start\n");
-
-  while( isRunning ) {
-
-    left = getPing(PINGL);
-    scanCogInitL = 1; // scan Cog initilized
-  }
-  dprint(term,"scanCogL End\n");
-}
-void scanCogR(void *par) {
-
-  dprint(term,"scanCogR Start\n");
-
-  while( isRunning ) {
-
-    right = getPing(PINGR);
-    scanCogInitR = 1; // scan Cog initilized
-  }
-  dprint(term,"scanCogR End\n");
-}
-
-/*
-* Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
-*/
-void keyboardCog(void *par) {
-
-  dprint(term,"keyboardCog Start\n");
-
-  char c = 0;                                   // Stores character input
-
-  while( isRunning ) {
-
-    // Handle any keystroke navigation
-    c = fdserial_rxTime(term, 50);            // Get character from terminal
-
-
-    if ( c == 'f' ) goForward();         // If 'f' then forward
-    if ( c == 'b' ) goBackward();       // If 'b' then backward
-    if ( c == 'l' ) goLeft();        // If 'l' then left
-    if ( c == 'r' ) goRight();        // If 'r' then right
-    if ( c == 's' ) goStop();           // If 's' then stop
-
-    if ( c == 'x' ) isRunning = 0;
-    if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
-
-    if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
-
-    calcCoordinates();  // Check for ticks
-
-    keyboardCogInit = 1; // Cog initilized
-  }
-  dprint(term,"keyboardCog End\n");
-}
 /**
 * Retrieves a ping by doing several pings, then getting an average.  The ping from time to time will get
 * a ping with a huge error
@@ -201,9 +131,48 @@ int getPing(int port) {
 
 
 /*
+* Runs in cog
+*/
+void scanCogA(void *par) {
+
+  //dprint(term,"scanCogA Start\n");
+
+  while( isRunning ) {
+
+    ahead = getPing(PINGA);
+    scanCogInitA = 1; // scan Cog initilized
+  }
+  //dprint(term,"scanCogA End\n");
+}
+void scanCogL(void *par) {
+
+  //dprint(term,"scanCogL Start\n");
+
+  while( isRunning ) {
+
+    left = getPing(PINGL);
+    scanCogInitL = 1; // scan Cog initilized
+  }
+ // dprint(term,"scanCogL End\n");
+}
+void scanCogR(void *par) {
+
+  //dprint(term,"scanCogR Start\n");
+
+  while( isRunning ) {
+
+    right = getPing(PINGR);
+    scanCogInitR = 1; // scan Cog initilized
+  }
+ // dprint(term,"scanCogR End\n");
+}
+/*
  * Calculates the coordinates and heading of the robot based on the ticks from the servos
  */
-void calcCoordinates(void) {
+/*
+void calcCoordinates() {
+
+  double pi =  3.14159265359;
 
 	ticksLeftOld = ticksLeft;
 	ticksRightOld = ticksRight;
@@ -225,17 +194,53 @@ void calcCoordinates(void) {
 	heading += deltaHeading;
 
 	// limit heading to -Pi <= heading < Pi
-	if (heading > PI) {
-		heading -= 2.0 * PI;
+	if (heading > pi) {
+		heading -= 2.0 * pi;
 	} else {
-		if (heading <= -PI) {
-			heading += 2.0 * PI;
+		if (heading <= -pi) {
+			heading += 2.0 * pi;
 		}
 	}
-   degHeading = heading * (180 / PI);
+   degHeading = heading * (180 / pi);
   if (degHeading < 0) degHeading += 360;
 
 }
+*/
+/*
+* Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
+*/
+void keyboardCog(void *par) {
+
+  dprint(term,"keyboardCog Start\n");
+
+  char c = 0;                                   // Stores character input
+
+  while( isRunning ) {
+
+    // Handle any keystroke navigation
+    c = fdserial_rxTime(term, 50);            // Get character from terminal
+
+
+    if ( c == 'f' ) goForward();         // If 'f' then forward
+    if ( c == 'b' ) goBackward();       // If 'b' then backward
+    if ( c == 'l' ) goLeft();        // If 'l' then left
+    if ( c == 'r' ) goRight();        // If 'r' then right
+    if ( c == 's' ) goStop();           // If 's' then stop
+
+    if ( c == 'x' ) isRunning = 0;
+    if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
+
+    if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
+
+//    calcCoordinates();  // Check for ticks
+
+    keyboardCogInit = 1; // Cog initilized
+  }
+  dprint(term,"keyboardCog End\n");
+}
+
+
+
 void actionTrapped() {
 
 	// stop
@@ -295,6 +300,9 @@ void actionRightWayFar() {
   	int adj = 8;
 	speedRight = speed;
 	speedLeft = speed + adj;
+}
+void action() {
+
 }
 int main(){
 
@@ -373,6 +381,8 @@ int main(){
       if ( ahead >= minWallDist + 7  ) aheadCond = wayTooFar; // 15 | 22 - ~
 
 
+
+
         if ( leftCond == wayTooClose ) {
 
 	        if ( aheadCond == wayTooClose ) {
@@ -416,6 +426,7 @@ int main(){
 		        if ( rightCond == wayTooFar   ) action();
 	        }
         }
+
         else if ( leftCond == lilTooClose ) {
 
 	        if ( aheadCond == wayTooClose ) {
@@ -579,6 +590,172 @@ int main(){
 		        if ( rightCond == lilTooFar   ) action();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
+/*
+right=3 ahead=43 left=55 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
+right=4 ahead=43 left=83 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=2 ahead=43 left=83 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
+right=2 ahead=43 left=83 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
+right=3 ahead=43 left=54 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
+right=3 ahead=42 left=54 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
+right=3 ahead=42 left=81 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
+right=3 ahead=89 left=81 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
+right=4 ahead=89 left=81 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=4 ahead=136 left=81 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=4 ahead=136 left=80 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=5 ahead=159 left=80 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=5 ahead=159 left=80 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=9 ahead=160 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=9 ahead=160 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=106 ahead=85 left=107 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=106 ahead=85 left=107 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=131 ahead=147 left=107 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=131 ahead=147 left=36 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=15 ahead=137 left=36 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=15 ahead=137 left=62 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=12 ahead=137 left=62 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=114 left=63 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=114 left=63 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=108 left=70 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=108 left=70 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=130 left=71 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=130 left=71 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=125 left=82 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=125 left=82 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=89 left=76 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=89 left=76 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=87 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=87 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=13 ahead=86 left=51 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=86 left=51 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=86 left=42 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=86 left=42 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=12 ahead=81 left=42 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=81 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=79 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=79 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=97 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=97 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=77 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=77 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=94 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=94 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=93 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=93 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=92 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=92 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=36 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=7 ahead=36 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=7 ahead=34 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=11 ahead=34 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=33 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=10 ahead=33 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=68 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=68 left=34 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=67 left=34 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=12 ahead=67 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=20 ahead=59 left=52 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=20 ahead=59 left=52 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=7 ahead=37 left=34 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=7 ahead=37 left=34 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=11 ahead=37 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=51 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=10 ahead=51 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=91 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=91 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=86 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=13 ahead=86 left=52 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=107 left=52 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=20 ahead=107 left=143 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=20 ahead=174 left=143 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=51 ahead=174 left=138 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=51 ahead=174 left=138 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=165 ahead=188 left=79 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=165 ahead=188 left=79 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=140 ahead=188 left=16 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
+right=140 ahead=188 left=16 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
+right=33 ahead=188 left=16 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
+right=33 ahead=188 left=14 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
+right=33 ahead=187 left=14 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
+right=33 ahead=187 left=81 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=33 ahead=161 left=81 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=19 ahead=161 left=85 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=19 ahead=109 left=85 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+right=11 ahead=109 left=85 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=109 left=88 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=109 left=88 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=8 ahead=109 left=74 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=84 left=74 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=13 ahead=84 left=74 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=124 left=74 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=124 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=98 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=98 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=43 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=43 left=62 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=41 left=62 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=13 ahead=41 left=56 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
+right=8 ahead=39 left=56 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=39 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=12 ahead=37 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=37 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=36 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=12 ahead=36 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
+right=11 ahead=34 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=34 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=33 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=33 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=32 left=38 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=11 ahead=32 left=38 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
+right=10 ahead=32 left=56 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=32 left=56 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=9 ahead=34 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=9 ahead=34 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=6 ahead=32 left=67 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=6 ahead=32 left=67 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=9 ahead=31 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=9 ahead=31 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=8 ahead=29 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=29 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=28 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=28 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=38 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=38 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=7 ahead=36 left=55 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=7 ahead=36 left=55 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=5 ahead=36 left=33 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=5 ahead=27 left=33 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=7 ahead=27 left=43 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=7 ahead=79 left=43 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=8 ahead=79 left=43 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=95 left=36 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=95 left=36 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=75 left=54 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=5 ahead=75 left=54 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=5 ahead=74 left=54 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=8 ahead=74 left=35 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=73 left=35 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=9 ahead=73 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=9 ahead=72 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
+right=7 ahead=72 left=52 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=7 ahead=71 left=52 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=10 ahead=71 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=10 ahead=76 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
+right=8 ahead=76 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=75 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=8 ahead=75 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
+right=7 ahead=75 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=7 ahead=75 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
+right=17 ahead=73 left=51 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
+Command c=120
+keyboardCog End
+main follow wall stop
+main End
+
+*/
 	        else if ( aheadCond == wayTooFar ) {
 
 		        if ( rightCond == wayTooClose ) actionRightWayClose();
@@ -588,8 +765,10 @@ int main(){
 		        if ( rightCond == wayTooFar   ) actionRightWayFar();
 	        }
         }
+      dprint(term, "right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d speedLeft=%d speedRight=%d\n", right, ahead, left, rightCond, aheadCond, leftCond, speedLeft, speedRight);
+      pause(250);
 
-
+/*
       // Turn left if about to ht the wall
       //
       if ( ahead <= minWallDist ) {
@@ -645,9 +824,9 @@ int main(){
         speedRight = speed;
         //dprint(term,"main forward\n");
       }
-
-
+*/
       drive_speed(speedLeft, speedRight);
+
       //pause(250);
     }
     //printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
@@ -655,12 +834,12 @@ int main(){
   }
   dprint(term,"main follow wall stop\n");
 
-  servo_stop();                               // Stop servo process
-  drive_goto(0,0);
-  cogstop( scanCogPtrA );
-  cogstop( scanCogPtrL );
-  cogstop( scanCogPtrR );
-  cogstop( keyboardCogPtr );
+//  servo_stop();                               // Stop servo process
+//  drive_goto(0,0);
+//  cogstop( scanCogPtrA );
+//  cogstop( scanCogPtrL );
+//  cogstop( scanCogPtrR );
+//  cogstop( keyboardCogPtr );
 
   dprint(term,"main End\n");
   return 0;
