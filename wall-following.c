@@ -1,6 +1,8 @@
 /*
   Blank Simple Project.c
   http://learn.parallax.com/propeller-c-tutorials
+  propeller-elf-gcc -I . -L . -I /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools -L /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c -L /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping -L /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo -L /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive -L /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial/cmm/ -o cmm/wall-following.elf -Os -mcmm -m32bit-doubles -fno-exceptions -std=c99 wall-following.c -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lm -lsimpletools -lsimpletext -lsimplei2c -lm -lsimpletools -lsimpletext -lm -lsimpletools -lm
+
 */
 #include "simpletools.h"                      // Include simple tools
 #include "ping.h"                      // Include simple tools
@@ -240,12 +242,43 @@ void keyboardCog(void *par) {
 }
 
 
+void actionTurnRightCorner( int prevWallOnRight ) {
 
+  // If we detected a wall multiple times, it's a corner.
+  //
+  if ( prevWallOnRight > 10 ) {
+    // Go straight until past corner
+    int dist = 0.325 * minWallDist + 50;
+
+    drive_goto(dist,dist);
+
+    // Turn right 90 degrees
+    action90Right();
+
+    // Go straight to go past edge
+    drive_goto( 50, 50);
+
+    // Keep going straigt
+    actionForward();
+  }
+  else {
+
+    actionForward();
+  }
+}
 void actionTrapped() {
 
 	// stop
 	speedRight = 0;
 	speedLeft  = 0;
+}
+void action90Right() {
+
+  drive_goto(26, -25);
+}
+void action90Left() {
+
+  drive_goto(-25, 26);
 }
 void actionBackUp90Right() {
 
@@ -253,6 +286,11 @@ void actionBackUp90Right() {
 	// turn 90 to right
 	// drive forward
 
+}
+void c() {
+
+	speedRight = -speed;
+	speedLeft  = -speed;
 }
 void actionForward() {
 
@@ -309,6 +347,10 @@ int main(){
   simpleterm_close();                         // Close default same-cog terminal
   term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
 
+  // Max drive_goto speed
+  drive_setMaxSpeed( speed );
+
+
   // Start the ping cog
   int scanCogPtrA    = cogstart(&scanCogA, NULL, sstackA, sizeof(sstackA));
   int scanCogPtrL    = cogstart(&scanCogL, NULL, sstackL, sizeof(sstackL));
@@ -357,27 +399,29 @@ int main(){
 		    wayTooFar = 5,
 		    leftCond = 0,
 		    rightCond = 0,
-		    aheadCond = 0;
+		    aheadCond = 0,
+           wallOnRight = 0,
+           prevWallOnRight = 0;
     
     
       if ( left  >= 0 && left  <= minWallDist - 7 ) leftCond  = wayTooClose; // 15 | 5 - 8
-      if ( right >= 0 && right <= minWallDist - 7 ) rightCond = wayTooClose; // 15 | 5 - 8
+      if ( right >= 0 && right <= minWallDist - 7 ) rightCond = wayTooClose, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 5 - 8
       if ( ahead >= 0 && ahead <= minWallDist - 7 ) aheadCond = wayTooClose; // 15 | 5 - 8
 
       if ( left  >= minWallDist - 6 && left  <= minWallDist - 3 ) leftCond = lilTooClose; // 15 | 9 - 12
-      if ( right >= minWallDist - 6 && right <= minWallDist - 3 ) rightCond = lilTooClose; // 15 | 9 - 12
-      if ( ahead >= minWallDist - 6 && ahead <= minWallDist - 3 ) aheadCond = lilTooClose; // 15 | 9 - 12
+      if ( right >= minWallDist - 6 && right <= minWallDist - 3 ) rightCond = lilTooClose, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 9 - 12
+//      if ( ahead >= minWallDist - 6 && ahead <= minWallDist - 3 ) aheadCond = lilTooClose; // 15 | 9 - 12
 
       if ( left  >= minWallDist - 2 && left  <= minWallDist + 2 ) leftCond  = justRight; // 15 | 13 - 17
-      if ( right >= minWallDist - 2 && right <= minWallDist + 2 ) rightCond = justRight; // 15 | 13 - 17
+      if ( right >= minWallDist - 2 && right <= minWallDist + 2 ) rightCond = justRight, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 13 - 17
       if ( ahead >= minWallDist - 2 && ahead <= minWallDist + 2 ) aheadCond = justRight; // 15 | 13 - 17
 
       if ( left  >= minWallDist + 3 && left  <= minWallDist + 6 ) leftCond  = lilTooFar; // 15 | 18 - 21
-      if ( right >= minWallDist + 3 && right <= minWallDist + 6 ) rightCond = lilTooFar; // 15 | 18 - 21
-      if ( ahead >= minWallDist + 3 && ahead <= minWallDist + 6 ) aheadCond = lilTooFar; // 15 | 18 - 21
+      if ( right >= minWallDist + 3 && right <= minWallDist + 6 ) rightCond = lilTooFar, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 18 - 21
+//      if ( ahead >= minWallDist + 3 && ahead <= minWallDist + 6 ) aheadCond = lilTooFar; // 15 | 18 - 21
 
       if ( left  >= minWallDist + 7  ) leftCond  = wayTooFar; // 15 | 22 - ~
-      if ( right >= minWallDist + 7  ) rightCond = wayTooFar; // 15 | 22 - ~
+      if ( right >= minWallDist + 7  ) rightCond = wayTooFar, prevWallOnRight = wallOnRight, wallOnRight = 0; // 15 | 22 - ~
       if ( ahead >= minWallDist + 7  ) aheadCond = wayTooFar; // 15 | 22 - ~
 
 
@@ -393,6 +437,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+/*
 	        else if ( aheadCond == lilTooClose ) {
 
 		        if ( rightCond == wayTooClose ) actionTrapped();
@@ -401,6 +446,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+*/
 	        else if ( aheadCond == justRight ) {
 	        
 		        if ( rightCond == wayTooClose ) actionTrapped();
@@ -409,6 +455,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+/*
 	        else if ( aheadCond == lilTooFar ) {
 
 		        if ( rightCond == wayTooClose ) actionTrapped();
@@ -417,6 +464,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+*/
 	        else if ( aheadCond == wayTooFar ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -437,6 +485,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+/*
 	        else if ( aheadCond == lilTooClose ) {
 
 		        if ( rightCond == wayTooClose ) actionTrapped();
@@ -445,6 +494,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+*/
 	        else if ( aheadCond == justRight ) {
 
 		        if ( rightCond == wayTooClose ) actionTrapped();
@@ -453,6 +503,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+/*
 	        else if ( aheadCond == lilTooFar ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -461,6 +512,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) action();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
+*/
 	        else if ( aheadCond == wayTooFar ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -480,6 +532,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+/*
 	        else if ( aheadCond == lilTooClose ) {
 	        
 		        if ( rightCond == wayTooClose ) actionTrapped();
@@ -488,6 +541,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+*/
 	        else if ( aheadCond == justRight ) {
 
 		        if ( rightCond == wayTooClose ) actionTrapped();
@@ -496,6 +550,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) actionTrapped();
 		        if ( rightCond == wayTooFar   ) actionBackUp90Right();
 	        }
+/*
 	        else if ( aheadCond == lilTooFar ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -504,6 +559,7 @@ int main(){
 		        if ( rightCond == lilTooFar   ) action();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
+*/
 	        else if ( aheadCond == wayTooFar ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -517,12 +573,13 @@ int main(){
 
 	        if ( aheadCond == wayTooClose ) {
 	        
-		        if ( rightCond == wayTooClose ) action();
-		        if ( rightCond == lilTooClose ) action();
-		        if ( rightCond == justRight   ) action();
-		        if ( rightCond == lilTooFar   ) action();
-		        if ( rightCond == wayTooFar   ) action();
+		        if ( rightCond == wayTooClose ) actionBackward();
+		        if ( rightCond == lilTooClose ) actionBackward();
+		        if ( rightCond == justRight   ) actionBackward();
+		        if ( rightCond == lilTooFar   ) actionBackward();
+		        if ( rightCond == wayTooFar   ) actionBackward();
 	        }
+/*
 	        else if ( aheadCond == lilTooClose ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -531,14 +588,16 @@ int main(){
 		        if ( rightCond == lilTooFar   ) action();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
+*/
 	        else if ( aheadCond == justRight ) {
 
-		        if ( rightCond == wayTooClose ) action();
-		        if ( rightCond == lilTooClose ) action();
-		        if ( rightCond == justRight   ) action();
-		        if ( rightCond == lilTooFar   ) action();
-		        if ( rightCond == wayTooFar   ) action();
+		        if ( rightCond == wayTooClose ) actionBackward();
+		        if ( rightCond == lilTooClose ) actionBackward();
+		        if ( rightCond == justRight   ) action90Left();
+		        if ( rightCond == lilTooFar   ) action90Left();
+		        if ( rightCond == wayTooFar   ) actionTurnRightCorner( prevWallOnRight );
 	        }
+/*
 	        else if ( aheadCond == lilTooFar ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -547,25 +606,27 @@ int main(){
 		        if ( rightCond == lilTooFar   ) action();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
+*/
 	        else if ( aheadCond == wayTooFar ) {
 
-		        if ( rightCond == wayTooClose ) action();
-		        if ( rightCond == lilTooClose ) action();
-		        if ( rightCond == justRight   ) action();
-		        if ( rightCond == lilTooFar   ) action();
-		        if ( rightCond == wayTooFar   ) action();
+		        if ( rightCond == wayTooClose ) actionRightWayClose();
+		        if ( rightCond == lilTooClose ) actionRightLilClose();
+		        if ( rightCond == justRight   ) actionRightOn();
+		        if ( rightCond == lilTooFar   ) actionRightLilFar();
+		        if ( rightCond == wayTooFar   ) actionRightWayFar();
 	        }
         }
         else if ( leftCond == wayTooFar ) {
 
 	        if ( aheadCond == wayTooClose ) {
 	        
-		        if ( rightCond == wayTooClose ) action();
-		        if ( rightCond == lilTooClose ) action();
-		        if ( rightCond == justRight   ) action();
-		        if ( rightCond == lilTooFar   ) action();
-		        if ( rightCond == wayTooFar   ) action();
+		        if ( rightCond == wayTooClose ) actionBackward();
+		        if ( rightCond == lilTooClose ) actionBackward();
+		        if ( rightCond == justRight   ) actionBackward();
+		        if ( rightCond == lilTooFar   ) actionBackward();
+		        if ( rightCond == wayTooFar   ) actionBackward();
 	        }
+/*
 	        else if ( aheadCond == lilTooClose ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -574,14 +635,16 @@ int main(){
 		        if ( rightCond == lilTooFar   ) action();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
+*/
 	        else if ( aheadCond == justRight ) {
 
-		        if ( rightCond == wayTooClose ) action();
-		        if ( rightCond == lilTooClose ) action();
-		        if ( rightCond == justRight   ) action();
-		        if ( rightCond == lilTooFar   ) action();
-		        if ( rightCond == wayTooFar   ) action();
+		        if ( rightCond == wayTooClose ) actionBackward();
+		        if ( rightCond == lilTooClose ) actionBackward();
+		        if ( rightCond == justRight   ) action90Left();
+		        if ( rightCond == lilTooFar   ) action90Left();
+		        if ( rightCond == wayTooFar   ) actionTurnRightCorner( prevWallOnRight );
 	        }
+/*
 	        else if ( aheadCond == lilTooFar ) {
 
 		        if ( rightCond == wayTooClose ) action();
@@ -590,171 +653,6 @@ int main(){
 		        if ( rightCond == lilTooFar   ) action();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
-/*
-right=3 ahead=43 left=55 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
-right=4 ahead=43 left=83 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=2 ahead=43 left=83 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
-right=2 ahead=43 left=83 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
-right=3 ahead=43 left=54 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
-right=3 ahead=42 left=54 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
-right=3 ahead=42 left=81 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
-right=3 ahead=89 left=81 rightCond=1 aheadCond=5 leftCond=5 speedLeft=15 speedRight=23
-right=4 ahead=89 left=81 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=4 ahead=136 left=81 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=4 ahead=136 left=80 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=5 ahead=159 left=80 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=5 ahead=159 left=80 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=9 ahead=160 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=9 ahead=160 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=106 ahead=85 left=107 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=106 ahead=85 left=107 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=131 ahead=147 left=107 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=131 ahead=147 left=36 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=15 ahead=137 left=36 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=15 ahead=137 left=62 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=12 ahead=137 left=62 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=114 left=63 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=114 left=63 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=108 left=70 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=108 left=70 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=130 left=71 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=130 left=71 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=125 left=82 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=125 left=82 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=89 left=76 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=89 left=76 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=87 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=87 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=13 ahead=86 left=51 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=86 left=51 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=86 left=42 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=86 left=42 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=12 ahead=81 left=42 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=81 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=79 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=79 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=97 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=97 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=77 left=50 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=77 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=94 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=94 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=93 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=93 left=33 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=92 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=92 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=36 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=7 ahead=36 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=7 ahead=34 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=11 ahead=34 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=33 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=10 ahead=33 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=67 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=68 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=68 left=34 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=67 left=34 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=12 ahead=67 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=20 ahead=59 left=52 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=20 ahead=59 left=52 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=7 ahead=37 left=34 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=7 ahead=37 left=34 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=11 ahead=37 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=51 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=10 ahead=51 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=91 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=91 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=86 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=13 ahead=86 left=52 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=107 left=52 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=20 ahead=107 left=143 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=20 ahead=174 left=143 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=51 ahead=174 left=138 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=51 ahead=174 left=138 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=165 ahead=188 left=79 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=165 ahead=188 left=79 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=140 ahead=188 left=16 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
-right=140 ahead=188 left=16 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
-right=33 ahead=188 left=16 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
-right=33 ahead=188 left=14 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
-right=33 ahead=187 left=14 rightCond=5 aheadCond=5 leftCond=4 speedLeft=23 speedRight=15
-right=33 ahead=187 left=81 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=33 ahead=161 left=81 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=19 ahead=161 left=85 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=19 ahead=109 left=85 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-right=11 ahead=109 left=85 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=109 left=88 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=109 left=88 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=8 ahead=109 left=74 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=84 left=74 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=13 ahead=84 left=74 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=124 left=74 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=124 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=98 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=98 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=43 left=73 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=43 left=62 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=41 left=62 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=13 ahead=41 left=56 rightCond=4 aheadCond=5 leftCond=5 speedLeft=20 speedRight=15
-right=8 ahead=39 left=56 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=39 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=12 ahead=37 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=37 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=36 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=12 ahead=36 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=13
-right=11 ahead=34 left=45 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=34 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=33 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=33 left=48 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=32 left=38 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=11 ahead=32 left=38 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=14
-right=10 ahead=32 left=56 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=32 left=56 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=9 ahead=34 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=9 ahead=34 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=6 ahead=32 left=67 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=6 ahead=32 left=67 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=9 ahead=31 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=9 ahead=31 left=57 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=8 ahead=29 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=29 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=28 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=28 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=38 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=38 left=55 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=7 ahead=36 left=55 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=7 ahead=36 left=55 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=5 ahead=36 left=33 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=5 ahead=27 left=33 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=7 ahead=27 left=43 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=7 ahead=79 left=43 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=8 ahead=79 left=43 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=95 left=36 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=95 left=36 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=75 left=54 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=5 ahead=75 left=54 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=5 ahead=74 left=54 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=8 ahead=74 left=35 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=73 left=35 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=9 ahead=73 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=9 ahead=72 left=53 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=16
-right=7 ahead=72 left=52 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=7 ahead=71 left=52 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=10 ahead=71 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=10 ahead=76 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=15
-right=8 ahead=76 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=75 left=52 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=8 ahead=75 left=51 rightCond=3 aheadCond=5 leftCond=5 speedLeft=15 speedRight=17
-right=7 ahead=75 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=7 ahead=75 left=51 rightCond=2 aheadCond=5 leftCond=5 speedLeft=15 speedRight=20
-right=17 ahead=73 left=51 rightCond=5 aheadCond=5 leftCond=5 speedLeft=23 speedRight=15
-Command c=120
-keyboardCog End
-main follow wall stop
-main End
-
 */
 	        else if ( aheadCond == wayTooFar ) {
 
