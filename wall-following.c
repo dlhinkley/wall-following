@@ -287,7 +287,7 @@ void actionBackUp90Right() {
 	// drive forward
 
 }
-void c() {
+void actionReverse() {
 
 	speedRight = -speed;
 	speedLeft  = -speed;
@@ -518,7 +518,7 @@ int main(){
 		        if ( rightCond == wayTooClose ) action();
 		        if ( rightCond == lilTooClose ) action();
 		        if ( rightCond == justRight   ) action();
-		        if ( rightCond == lilTooFar   ) action();
+		        if ( rightCond == lilTooFar   ) actionLeftLilClose();
 		        if ( rightCond == wayTooFar   ) action();
 	        }
         }
