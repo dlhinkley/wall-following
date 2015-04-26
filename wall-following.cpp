@@ -55,10 +55,7 @@ unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
 unsigned int sstackR[40 + 20]; // If things get weird make this number bigger!
 unsigned int kstack[40 + 30]; // If things get weird make this number bigger!
 
-int ticksLeft, ticksRight, ticksLeftOld, ticksRightOld;
-static double trackWidth, distancePerCount;
 
-static volatile double heading = 0.0, x = 0.0, y = 0.0, degHeading;
 
 
 
@@ -169,11 +166,58 @@ void scanCogR(void *par) {
 	}
 	// dprint(term,"scanCogR End\n");
 }
+
+/*
+ * Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
+ */
+void keyboardCog(void *par) {
+
+	dprint(term,"keyboardCog Start\n");
+
+	char c = 0;                                   // Stores character input
+
+	while( isRunning ) {
+
+		// Handle any keystroke navigation
+		c = fdserial_rxTime(term, 50);            // Get character from terminal
+
+
+		//if ( c == 'f' ) goForward();         // If 'f' then forward
+		//if ( c == 'b' ) goBackward();       // If 'b' then backward
+		//if ( c == 'l' ) goLeft();        // If 'l' then left
+		//if ( c == 'r' ) goRight();        // If 'r' then right
+		//if ( c == 's' ) goStop();           // If 's' then stop
+
+		if ( c == 'x' ) isRunning = 0;
+		if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
+
+		if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
+
+		//    calcCoordinates();  // Check for ticks
+
+		keyboardCogInit = 1; // Cog initilized
+	}
+	dprint(term,"keyboardCog End\n");
+}
+class Location {
+	int ticksLeft, ticksRight, ticksLeftOld, ticksRightOld;
+	double trackWidth, distancePerCount;
+public:
+	double heading, x, y, degHeading;
+	Location();
+	void update();
+
+};
+Location::Location() {
+	heading = 0.0;
+	x = 0.0;
+	y = 0.0;
+}
 /*
  * Calculates the coordinates and heading of the robot based on the ticks from the servos
  */
-/*
-void calcCoordinates() {
+
+void Location::update() {
 
   double pi =  3.14159265359;
 
@@ -208,39 +252,7 @@ void calcCoordinates() {
   if (degHeading < 0) degHeading += 360;
 
 }
- */
-/*
- * Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
- */
-void keyboardCog(void *par) {
 
-	dprint(term,"keyboardCog Start\n");
-
-	char c = 0;                                   // Stores character input
-
-	while( isRunning ) {
-
-		// Handle any keystroke navigation
-		c = fdserial_rxTime(term, 50);            // Get character from terminal
-
-
-		//if ( c == 'f' ) goForward();         // If 'f' then forward
-		//if ( c == 'b' ) goBackward();       // If 'b' then backward
-		//if ( c == 'l' ) goLeft();        // If 'l' then left
-		//if ( c == 'r' ) goRight();        // If 'r' then right
-		//if ( c == 's' ) goStop();           // If 's' then stop
-
-		if ( c == 'x' ) isRunning = 0;
-		if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
-
-		if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
-
-		//    calcCoordinates();  // Check for ticks
-
-		keyboardCogInit = 1; // Cog initilized
-	}
-	dprint(term,"keyboardCog End\n");
-}
 class Action {
 	int prevSpeedRight;
 	int prevSpeedLeft;
@@ -281,6 +293,7 @@ public:
 	int speedRight;
 	int prevWallOnRight;
 	int wallOnRight;
+	Location loc;
 
 };
 Action::Action() {
@@ -295,6 +308,7 @@ Action::Action() {
 	speedMax = 40;
 	speedSlow = 5;
 	minWallDist = 10;
+	Location loc;
 }
 
 void Action::goLeft() {
@@ -323,7 +337,7 @@ void Action::driveSpeed(int left,int right) {
 
 		dprint(term,"new driveSpeed left=%d right=%d\n", left, right);
 	}
-
+	loc.update();
 }
 void Action::trapped() {
 
@@ -671,8 +685,8 @@ int main(){
 			}
 
 
-			dprint(term, "right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
-					      right,   ahead,   left,   (int)rightCond.getCondition(),   (int)aheadCond.getCondition(),   (int)leftCond.getCondition(),   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
+			dprint(term, "x=%f          y=%f          heading=%f          right=%d ahead=%d left=%d rightCond=%d                     aheadCond=%d                    leftCond=%d                      prevWallOnRight=%d        wallOnRight=%d        speedLeft=%d        speedRight=%d\n",
+					      action.loc.x, action.loc.y, action.loc.heading, right,   ahead,   left,   (int)rightCond.getCondition(),   (int)aheadCond.getCondition(),   (int)leftCond.getCondition(),   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
 
 			pause(250);
 
