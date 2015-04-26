@@ -46,17 +46,9 @@ static volatile int ahead = 0,
 		scanCogInitR = 0,
 		keyboardCogInit = 0;
 
-int speed = 20;
-int speedMax = 40;
-int correctLil = 2;
-int correctWay = 4;
-int speedSlow = 5;
-int minWallDist = 10;
 
-int speedLeft = 0;
-int speedRight = 0;
-int prevSpeedRight = 0;
-int prevSpeedLeft = 0;
+
+
 
 unsigned int sstackA[40 + 20]; // If things get weird make this number bigger!
 unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
@@ -69,34 +61,8 @@ static double trackWidth, distancePerCount;
 static volatile double heading = 0.0, x = 0.0, y = 0.0, degHeading;
 
 
-void driveSpeed(int left,int right) {
 
-	if ( left != prevSpeedLeft || right != prevSpeedRight ) {
 
-		drive_speed(left, right);
-		prevSpeedLeft = left;
-		prevSpeedRight = right;
-
-		dprint(term,"new driveSpeed left=%d right=%d\n", left, right);
-	}
-
-}
-
-void goLeft() {
-	driveSpeed(-speed, speed);
-}
-void goStop() {
-	driveSpeed(0, 0);
-}
-void goRight() {
-	driveSpeed(speed, -speed);
-}
-void goBackward() {
-	driveSpeed(-speed, -speed);
-}
-void goForward() {
-	driveSpeed(speed, speed);
-}
 
 /*
  * Drive to find the best wall
@@ -258,11 +224,11 @@ void keyboardCog(void *par) {
 		c = fdserial_rxTime(term, 50);            // Get character from terminal
 
 
-		if ( c == 'f' ) goForward();         // If 'f' then forward
-		if ( c == 'b' ) goBackward();       // If 'b' then backward
-		if ( c == 'l' ) goLeft();        // If 'l' then left
-		if ( c == 'r' ) goRight();        // If 'r' then right
-		if ( c == 's' ) goStop();           // If 's' then stop
+		//if ( c == 'f' ) goForward();         // If 'f' then forward
+		//if ( c == 'b' ) goBackward();       // If 'b' then backward
+		//if ( c == 'l' ) goLeft();        // If 'l' then left
+		//if ( c == 'r' ) goRight();        // If 'r' then right
+		//if ( c == 's' ) goStop();           // If 's' then stop
 
 		if ( c == 'x' ) isRunning = 0;
 		if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
@@ -275,41 +241,121 @@ void keyboardCog(void *par) {
 	}
 	dprint(term,"keyboardCog End\n");
 }
+class Action {
+	int prevSpeedRight;
+	int prevSpeedLeft;
+	int correctLil;
+	int correctWay;
+	int speed;
+	int speedMax;
+	int speedSlow;
+	int minWallDist;
 
+	void turnRightCorner(  );
+	void driveSpeed( int, int);
 
-void actionTrapped() {
+public:
+	Action();
+	void trapped();
+	void right90();
+	void left90();
+	void backward();
+	void forward();
+	void backUp90Right();
+	void rightOn();
+	void leftOn();
+	void leftWayClose();
+	void rightLilFar();
+	void rightWayFar();
+	void rightWayClose();
+	void rightLilClose();
+	void leftLilClose();
+	void action();
+	void drive();
+	void goLeft();
+	void goStop();
+	void goRight();
+	void goBackward();
+	void goForward();
+	int speedLeft;
+	int speedRight;
+	int prevWallOnRight;
+	int wallOnRight;
+
+};
+Action::Action() {
+
+	speedLeft = 0;
+	speedRight = 0;
+	prevSpeedRight = 0;
+	prevSpeedLeft = 0;
+	correctLil = 2;
+	correctWay = 4;
+	speed = 20;
+	speedMax = 40;
+	speedSlow = 5;
+	minWallDist = 10;
+}
+
+void Action::goLeft() {
+	driveSpeed(-speed, speed);
+}
+void Action::goStop() {
+	driveSpeed(0, 0);
+}
+void Action::goRight() {
+	driveSpeed(speed, -speed);
+}
+void Action::goBackward() {
+	driveSpeed(-speed, -speed);
+}
+void Action::goForward() {
+	driveSpeed(speed, speed);
+}
+
+void Action::driveSpeed(int left,int right) {
+
+	if ( left != prevSpeedLeft || right != prevSpeedRight ) {
+
+		drive_speed(left, right);
+		prevSpeedLeft = left;
+		prevSpeedRight = right;
+
+		dprint(term,"new driveSpeed left=%d right=%d\n", left, right);
+	}
+
+}
+void Action::trapped() {
 
 	// stop
 	speedRight = 0;
 	speedLeft  = 0;
 }
-void action90Right() {
+void Action::right90() {
 
 	drive_goto(26, -25);
 }
-void action90Left() {
+void Action::left90() {
 
 	drive_goto(-25, 26);
 }
-void actionBackUp90Right() {
+void Action::backUp90Right() {
 
 	// backup until ahead is just right
 	// turn 90 to right
 	// drive forward
 
 }
-void actionBackward() {
+void Action::backward() {
 
-	speedRight = -speed;
-	speedLeft  = -speed;
+	driveSpeed(-speed, -speed);
 }
-void actionForward() {
+void Action::forward() {
 
-	speedRight = speed;
-	speedLeft  = speed;
+	driveSpeed(speed, speed);
 }
 
-void turnRightCorner(  ) {
+void Action::turnRightCorner(  ) {
 
 	// Go straight until past corner
 	int dist = 0.325 * minWallDist + 50;
@@ -317,64 +363,56 @@ void turnRightCorner(  ) {
 	drive_goto(dist,dist);
 
 	// Turn right 90 degrees
-	action90Right();
+	right90();
 
 	// Go straight to go past edge
 	drive_goto( 50, 50);
 
 	// Keep going straigt
-	actionForward();
+	forward();
 
 }
-void actionRightOn() {
+void Action::rightOn() {
 
 	// correct based on dynamic adjustment right or left of right
 	// 15 - 14 = 1 too close so right should go faster
 	// 15 - 16 = -1 too far so right should go slower
 	int adj = (minWallDist - right) ;
-	speedRight = speed + adj;
-	speedLeft = speed;
+
+	driveSpeed(speed, speed + adj);
 }
-void actionLeftOn() {
+void Action::leftOn() {
 
 	// correct based on dynamic adjustment right or left of right
 	// 15 - 14 = 1 too close so left should go faster
 	// 15 - 16 = -1 too far so left should go slower
 	int adj = (minWallDist - left) ;
-	speedRight = speed;
-	speedLeft = speed + adj;
-}
-void actionLeftWayClose() {
 
-	int adj = correctWay;
-	speedRight = speed;
-	speedLeft = speed + adj;
+	driveSpeed(speed + adj, speed);
 }
-void actionRightWayClose() {
+void Action::leftWayClose() {
 
-	int adj = correctWay;
-	speedRight = speed + adj;
-	speedLeft = speed;
+	driveSpeed(speed + correctWay, speed);
 }
-void actionLeftLilClose() {
+void Action::rightWayClose() {
 
-	int adj = correctLil;
-	speedRight = speed;
-	speedLeft = speed + adj;
+	driveSpeed(speed, speed + correctWay);
 }
-void actionRightLilClose() {
+void Action::leftLilClose() {
 
-	int adj = correctLil;
-	speedRight = speed + adj;
-	speedLeft = speed;
-}
-void actionRightLilFar() {
+	driveSpeed(speed, speed + correctLil);
 
-	int adj = correctLil;
-	speedRight = speed;
-	speedLeft = speed + adj;
 }
-void actionRightWayFar( int prevWallOnRight ) {
+void Action::rightLilClose() {
+
+	driveSpeed(speed, speed + correctLil);
+
+}
+void Action::rightLilFar() {
+
+	driveSpeed(speed + correctLil, speed);
+}
+void Action::rightWayFar( ) {
 
 	// If we detected a wall multiple times, it's a corner.
 	//
@@ -384,14 +422,55 @@ void actionRightWayFar( int prevWallOnRight ) {
 	}
 	else {
 
-		actionForward();
+		forward();
 	}
 }
-void action() {
+void Action::action() {
 
+}
+
+enum CondValue { WAY_TOO_CLOSE, LIL_TOO_CLOSE, JUST_RIGHT, LIL_TOO_FAR, WAY_TOO_FAR };
+
+class Condition {
+
+	int minWallDist;
+
+	CondValue cond;
+
+
+	public:
+		Condition();
+		void setCondition(int);
+		CondValue getCondition();
+
+};
+Condition::Condition() {
+
+	minWallDist = 10;
+}
+CondValue Condition::getCondition() {
+
+	return cond;
+}
+void Condition::setCondition(int distance) {
+
+	if ( distance  >= 0 && distance  <= minWallDist - 7 ) { cond  = WAY_TOO_CLOSE; } // 15 | 5 - 8
+
+	if ( distance  >= minWallDist - 6 && distance  <= minWallDist - 3 ) { cond = LIL_TOO_CLOSE; } // 15 | 9 - 12
+
+	if ( distance  >= minWallDist - 2 && distance  <= minWallDist + 2 ) { cond  = JUST_RIGHT; } // 15 | 13 - 17
+
+	if ( distance  >= minWallDist + 3 && distance  <= minWallDist + 6 ) { cond  = LIL_TOO_FAR; } // 15 | 18 - 21
+
+	if ( distance  >= minWallDist + 7  ) { cond  = WAY_TOO_FAR; } // 15 | 22 - ~
 }
 
 int main(){
+
+	Condition leftCond;
+	Condition aheadCond;
+	Condition rightCond;
+	Action action;
 
 //	freqout(5, 2000, 2000);               // Start beep - low battery reset alarm
 
@@ -429,24 +508,6 @@ int main(){
 
 	dprint(term,"main follow wall start\n");
 
-	speedLeft = speed;
-	speedRight = speed;
-
-	int prevErrorRight   = 0;
-	int prevErrorLeft    = 0;
-	int lastWallDistDiff = 0;
-	int prevWallOnRight  = 0;
-	int adjustLeft  = 0;
-	int adjustRight = 0;
-	int wallOnRight = 0;
-	int wayTooClose = 1;
-	int lilTooClose = 2;
-	int justRight   = 3;
-	int lilTooFar   = 4;
-	int wayTooFar   = 5;
-	int leftCond    = 0;
-	int rightCond   = 0;
-	int aheadCond   = 0;
 
 	// Keep running
 	while( isRunning ) {
@@ -454,184 +515,167 @@ int main(){
 
 		if ( isWallFollowing   ) {
 
-			if ( left  >= 0 && left  <= minWallDist - 7 ) { leftCond  = wayTooClose; } // 15 | 5 - 8
-			if ( right >= 0 && right <= minWallDist - 7 ) { rightCond = wayTooClose; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 5 - 8
-			if ( ahead >= 0 && ahead <= minWallDist - 7 ) { aheadCond = wayTooClose; } // 15 | 5 - 8
-
-			if ( left  >= minWallDist - 6 && left  <= minWallDist - 3 ) { leftCond = lilTooClose; } // 15 | 9 - 12
-			if ( right >= minWallDist - 6 && right <= minWallDist - 3 ) { rightCond = lilTooClose; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 9 - 12
-
-			if ( left  >= minWallDist - 2 && left  <= minWallDist + 2 ) { leftCond  = justRight; } // 15 | 13 - 17
-			if ( right >= minWallDist - 2 && right <= minWallDist + 2 ) { rightCond = justRight; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 13 - 17
-			if ( ahead >= minWallDist - 2 && ahead <= minWallDist + 2 ) { aheadCond = justRight; } // 15 | 13 - 17
-
-			if ( left  >= minWallDist + 3 && left  <= minWallDist + 6 ) { leftCond  = lilTooFar; } // 15 | 18 - 21
-			if ( right >= minWallDist + 3 && right <= minWallDist + 6 ) { rightCond = lilTooFar; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 18 - 21
-
-			if ( left  >= minWallDist + 7  ) { leftCond  = wayTooFar; } // 15 | 22 - ~
-			if ( right >= minWallDist + 7  ) { rightCond = wayTooFar; prevWallOnRight = wallOnRight; wallOnRight = 0; } // 15 | 22 - ~
-			if ( ahead >= minWallDist + 7  ) { aheadCond = wayTooFar; } // 15 | 22 - ~
+			leftCond.setCondition( left );
+			aheadCond.setCondition( ahead );
+			rightCond.setCondition( right );
 
 
+			if ( leftCond.getCondition() == WAY_TOO_CLOSE ) {
 
-			if ( leftCond == wayTooClose ) {
+				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
 
-				if ( aheadCond == wayTooClose ) {
-
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionTrapped();
-					if ( rightCond == wayTooFar   ) actionBackUp90Right();
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.trapped();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
-				else if ( aheadCond == justRight ) {
+				else if ( aheadCond.getCondition() == JUST_RIGHT ) {
 
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionTrapped();
-					if ( rightCond == wayTooFar   ) actionBackUp90Right();
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.trapped();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
-				else if ( aheadCond == wayTooFar ) {
+				else if ( aheadCond.getCondition() == WAY_TOO_FAR ) {
 
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionLeftWayClose();
-					if ( rightCond == wayTooFar   ) actionLeftWayClose();
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.leftWayClose();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.leftWayClose();
 				}
 			}
 
-			else if ( leftCond == lilTooClose ) {
+			else if ( leftCond.getCondition() == LIL_TOO_CLOSE ) {
 
-				if ( aheadCond == wayTooClose ) {
+				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
 
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionTrapped();
-					if ( rightCond == wayTooFar   ) actionBackUp90Right();
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.trapped();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
-				else if ( aheadCond == justRight ) {
+				else if ( aheadCond.getCondition() == JUST_RIGHT ) {
 
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionTrapped();
-					if ( rightCond == wayTooFar   ) actionBackUp90Right();
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.trapped();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
-				else if ( aheadCond == wayTooFar ) {
+				else if ( aheadCond.getCondition() == WAY_TOO_FAR ) {
 
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionLeftLilClose();
-					if ( rightCond == wayTooFar   ) actionLeftLilClose();
-				}
-			}
-			else if ( leftCond == justRight ) {
-
-				if ( aheadCond == wayTooClose ) {
-
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionTrapped();
-					if ( rightCond == wayTooFar   ) actionBackUp90Right();
-				}
-
-				else if ( aheadCond == justRight ) {
-
-					if ( rightCond == wayTooClose ) actionTrapped();
-					if ( rightCond == lilTooClose ) actionTrapped();
-					if ( rightCond == justRight   ) actionTrapped();
-					if ( rightCond == lilTooFar   ) actionTrapped();
-					if ( rightCond == wayTooFar   ) actionBackUp90Right();
-				}
-
-				else if ( aheadCond == wayTooFar ) {
-
-					if ( rightCond == wayTooClose ) actionBackward();
-					if ( rightCond == lilTooClose ) actionBackward();
-					if ( rightCond == justRight   ) action90Right();
-					if ( rightCond == lilTooFar   ) actionRightLilFar();
-					if ( rightCond == wayTooFar   ) actionRightWayFar( prevWallOnRight );
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.leftLilClose();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.leftLilClose();
 				}
 			}
-			else if ( leftCond == lilTooFar ) {
+			else if ( leftCond.getCondition() == JUST_RIGHT ) {
 
-				if ( aheadCond == wayTooClose ) {
+				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
 
-					if ( rightCond == wayTooClose ) actionBackward();
-					if ( rightCond == lilTooClose ) actionBackward();
-					if ( rightCond == justRight   ) actionBackward();
-					if ( rightCond == lilTooFar   ) actionBackward();
-					if ( rightCond == wayTooFar   ) actionBackward();
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.trapped();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
-				else if ( aheadCond == justRight ) {
+				else if ( aheadCond.getCondition() == JUST_RIGHT ) {
 
-					if ( rightCond == wayTooClose ) actionBackward();
-					if ( rightCond == lilTooClose ) actionBackward();
-					if ( rightCond == justRight   ) action90Left();
-					if ( rightCond == lilTooFar   ) action90Left();
-					if ( rightCond == wayTooFar   ) actionRightWayFar( prevWallOnRight );
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.trapped();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.trapped();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.trapped();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
-				else if ( aheadCond == wayTooFar ) {
+				else if ( aheadCond.getCondition() == WAY_TOO_FAR ) {
 
-					if ( rightCond == wayTooClose ) actionRightWayClose();
-					if ( rightCond == lilTooClose ) actionRightLilClose();
-					if ( rightCond == justRight   ) actionRightOn();
-					if ( rightCond == lilTooFar   ) actionRightLilFar();
-					if ( rightCond == wayTooFar   ) actionRightWayFar( prevWallOnRight );
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.right90();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.rightLilFar();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
+				}
+			}
+			else if ( leftCond.getCondition() == LIL_TOO_FAR ) {
+
+				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
+
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.backward();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.backward();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backward();
+				}
+
+				else if ( aheadCond.getCondition() == JUST_RIGHT ) {
+
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.left90();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.left90();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
+				}
+
+				else if ( aheadCond.getCondition() == WAY_TOO_FAR ) {
+
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.rightWayClose();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.rightLilClose();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.rightOn();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.rightLilFar();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
 			}
 			/*
 
 			 */
-			else if ( leftCond == wayTooFar ) {
+			else if ( leftCond.getCondition() == WAY_TOO_FAR ) {
 
-				if ( aheadCond == wayTooClose ) {
+				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
 
-					if ( rightCond == wayTooClose ) actionBackward();
-					if ( rightCond == lilTooClose ) actionBackward();
-					if ( rightCond == justRight   ) actionBackward();
-					if ( rightCond == lilTooFar   ) actionBackward();
-					if ( rightCond == wayTooFar   ) actionBackward();
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.backward();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.backward();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.backward();
 				}
 
-				else if ( aheadCond == justRight ) {
+				else if ( aheadCond.getCondition() == JUST_RIGHT ) {
 
-					if ( rightCond == wayTooClose ) actionBackward();
-					if ( rightCond == lilTooClose ) actionBackward();
-					if ( rightCond == justRight   ) action90Left();
-					if ( rightCond == lilTooFar   ) action90Left();
-					if ( rightCond == wayTooFar   ) actionRightWayFar( prevWallOnRight );
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.backward();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.left90();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.left90();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
 
-				else if ( aheadCond == wayTooFar ) {
+				else if ( aheadCond.getCondition() == WAY_TOO_FAR ) {
 
-					if ( rightCond == wayTooClose ) actionRightWayClose();
-					if ( rightCond == lilTooClose ) actionRightLilClose();
-					if ( rightCond == justRight   ) actionRightOn();
-					if ( rightCond == lilTooFar   ) actionRightLilFar();
-					if ( rightCond == wayTooFar   ) actionRightWayFar( prevWallOnRight );
+					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.rightWayClose();
+					if ( rightCond.getCondition() == LIL_TOO_CLOSE ) action.rightLilClose();
+					if ( rightCond.getCondition() == JUST_RIGHT    ) action.rightOn();
+					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.rightLilFar();
+					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
 			}
 
 
 			dprint(term, "right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
-					      right,   ahead,   left,   rightCond,   aheadCond,   leftCond,   prevWallOnRight,   wallOnRight,   speedLeft,   speedRight);
+					      right,   ahead,   left,   (int)rightCond.getCondition(),   (int)aheadCond.getCondition(),   (int)leftCond.getCondition(),   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
+
 			pause(250);
 
-			driveSpeed(speedLeft, speedRight);
-
-			//pause(250);
 		}
 		//printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
 
