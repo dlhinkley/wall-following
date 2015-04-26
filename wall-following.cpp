@@ -1,7 +1,26 @@
 /*
   Blank Simple Project.c
   http://learn.parallax.com/propeller-c-tutorials
-  propeller-elf-gcc -I . -L . -I /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools -L /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c -L /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping -L /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo -L /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive -L /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial/cmm/ -o cmm/wall-following.elf -Os -mcmm -m32bit-doubles -fno-exceptions -std=c99 wall-following.c -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -lm -lsimpletools -lsimpletext -lsimplei2c -lping -lm -lsimpletools -lsimpletext -lsimplei2c -lm -lsimpletools -lsimpletext -lm -lsimpletools -lm
+
+propeller-elf-gcc -v GCC 4.6.1 (propellergcc_v1_0_0_2344)
+propeller-elf-c++ -I . -L . -I /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools -L /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c -L /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping -L /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo -L /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive -L /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial/cmm/ -o cmm/wall-following.elf -Os -mcmm -m32bit-doubles -fno-exceptions -fno-rtti wall-following.cpp -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -ltiny -lsimpletools -lsimpletext -lsimplei2c -ltiny -lsimpletools -lsimpletext -ltiny -lsimpletools -ltiny
+propeller-load -s cmm/wall-following.elf
+propeller-elf-objdump -h cmm/wall-following.elf
+
+Project Directory: /home/pi/SimpleIDE/wall-following/
+
+propeller-elf-gcc -v GCC 4.6.1 (propellergcc_v1_0_0_2344)
+propeller-elf-c++ -I . -L . -I /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools -L /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c -L /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping -L /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo -L /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive -L /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial/cmm/ -o cmm/wall-following.elf -Os -mcmm -m32bit-doubles -fno-exceptions -fno-rtti wall-following.cpp -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -ltiny -lsimpletools -lsimpletext -lsimplei2c -ltiny -lsimpletools -lsimpletext -ltiny -lsimpletools -ltiny
+propeller-load -s cmm/wall-following.elf
+propeller-elf-objdump -h cmm/wall-following.elf
+Done. Build Succeeded!
+
+propeller-load -Dreset=dtr -I /opt/parallax/propeller-load/ -b ACTIVITYBOARD cmm/wall-following.elf -r -p /dev/ttyUSB0Propeller Version 1 on /dev/ttyUSB0
+Loading cmm/wall-following.elf to hub memory
+16780 bytes sent
+
+Verifying RAM ... 
+OK
 
  */
 #include "simpletools.h"                      // Include simple tools
@@ -28,11 +47,16 @@ static volatile int ahead = 0,
 		keyboardCogInit = 0;
 
 int speed = 20;
+int speedMax = 40;
+int correctLil = 2;
+int correctWay = 4;
 int speedSlow = 5;
 int minWallDist = 10;
 
 int speedLeft = 0;
 int speedRight = 0;
+int prevSpeedRight = 0;
+int prevSpeedLeft = 0;
 
 unsigned int sstackA[40 + 20]; // If things get weird make this number bigger!
 unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
@@ -45,22 +69,33 @@ static double trackWidth, distancePerCount;
 static volatile double heading = 0.0, x = 0.0, y = 0.0, degHeading;
 
 
+void driveSpeed(int left,int right) {
 
+	if ( left != prevSpeedLeft || right != prevSpeedRight ) {
+
+		drive_speed(left, right);
+		prevSpeedLeft = left;
+		prevSpeedRight = right;
+
+		dprint(term,"new driveSpeed left=%d right=%d\n", left, right);
+	}
+
+}
 
 void goLeft() {
-	drive_speed(-speed, speed);
+	driveSpeed(-speed, speed);
 }
 void goStop() {
-	drive_speed(0, 0);
+	driveSpeed(0, 0);
 }
 void goRight() {
-	drive_speed(speed, -speed);
+	driveSpeed(speed, -speed);
 }
 void goBackward() {
-	drive_speed(-speed, -speed);
+	driveSpeed(-speed, -speed);
 }
 void goForward() {
-	drive_speed(speed, speed);
+	driveSpeed(speed, speed);
 }
 
 /*
@@ -311,31 +346,31 @@ void actionLeftOn() {
 }
 void actionLeftWayClose() {
 
-	int adj = 8;
+	int adj = correctWay;
 	speedRight = speed;
 	speedLeft = speed + adj;
 }
 void actionRightWayClose() {
 
-	int adj = 8;
+	int adj = correctWay;
 	speedRight = speed + adj;
 	speedLeft = speed;
 }
 void actionLeftLilClose() {
 
-	int adj = 5;
+	int adj = correctLil;
 	speedRight = speed;
 	speedLeft = speed + adj;
 }
 void actionRightLilClose() {
 
-	int adj = 5;
+	int adj = correctLil;
 	speedRight = speed + adj;
 	speedLeft = speed;
 }
 void actionRightLilFar() {
 
-	int adj = 5;
+	int adj = correctLil;
 	speedRight = speed;
 	speedLeft = speed + adj;
 }
@@ -358,13 +393,13 @@ void action() {
 
 int main(){
 
-	freqout(5, 2000, 2000);               // Start beep - low battery reset alarm
+//	freqout(5, 2000, 2000);               // Start beep - low battery reset alarm
 
 	simpleterm_close();                         // Close default same-cog terminal
 	term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
 
 	// Max drive_goto speed
-	drive_setMaxSpeed( speed );
+	//drive_setMaxSpeed( speed );
 
 
 	// Start the ping cog
@@ -396,13 +431,22 @@ int main(){
 
 	speedLeft = speed;
 	speedRight = speed;
-	int adjustLeft = 0;
+
+	int prevErrorRight   = 0;
+	int prevErrorLeft    = 0;
+	int lastWallDistDiff = 0;
+	int prevWallOnRight  = 0;
+	int adjustLeft  = 0;
 	int adjustRight = 0;
-	int prevErrorRight = 0;
-	int prevErrorLeft = 0;
-	int lastWallDistDiff = 0,
-        wallOnRight = 0,
-        prevWallOnRight = 0;
+	int wallOnRight = 0;
+	int wayTooClose = 1;
+	int lilTooClose = 2;
+	int justRight   = 3;
+	int lilTooFar   = 4;
+	int wayTooFar   = 5;
+	int leftCond    = 0;
+	int rightCond   = 0;
+	int aheadCond   = 0;
 
 	// Keep running
 	while( isRunning ) {
@@ -410,33 +454,23 @@ int main(){
 
 		if ( isWallFollowing   ) {
 
-			int wayTooClose = 1,
-					lilTooClose = 2,
-					justRight = 3,
-					lilTooFar = 4,
-					wayTooFar = 5,
-					leftCond = 0,
-					rightCond = 0,
-					aheadCond = 0;
+			if ( left  >= 0 && left  <= minWallDist - 7 ) { leftCond  = wayTooClose; } // 15 | 5 - 8
+			if ( right >= 0 && right <= minWallDist - 7 ) { rightCond = wayTooClose; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 5 - 8
+			if ( ahead >= 0 && ahead <= minWallDist - 7 ) { aheadCond = wayTooClose; } // 15 | 5 - 8
 
+			if ( left  >= minWallDist - 6 && left  <= minWallDist - 3 ) { leftCond = lilTooClose; } // 15 | 9 - 12
+			if ( right >= minWallDist - 6 && right <= minWallDist - 3 ) { rightCond = lilTooClose; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 9 - 12
 
-			if ( left  >= 0 && left  <= minWallDist - 7 ) leftCond  = wayTooClose; // 15 | 5 - 8
-			if ( right >= 0 && right <= minWallDist - 7 ) rightCond = wayTooClose, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 5 - 8
-			if ( ahead >= 0 && ahead <= minWallDist - 7 ) aheadCond = wayTooClose; // 15 | 5 - 8
+			if ( left  >= minWallDist - 2 && left  <= minWallDist + 2 ) { leftCond  = justRight; } // 15 | 13 - 17
+			if ( right >= minWallDist - 2 && right <= minWallDist + 2 ) { rightCond = justRight; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 13 - 17
+			if ( ahead >= minWallDist - 2 && ahead <= minWallDist + 2 ) { aheadCond = justRight; } // 15 | 13 - 17
 
-			if ( left  >= minWallDist - 6 && left  <= minWallDist - 3 ) leftCond = lilTooClose; // 15 | 9 - 12
-			if ( right >= minWallDist - 6 && right <= minWallDist - 3 ) rightCond = lilTooClose, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 9 - 12
+			if ( left  >= minWallDist + 3 && left  <= minWallDist + 6 ) { leftCond  = lilTooFar; } // 15 | 18 - 21
+			if ( right >= minWallDist + 3 && right <= minWallDist + 6 ) { rightCond = lilTooFar; prevWallOnRight = wallOnRight; wallOnRight++; } // 15 | 18 - 21
 
-			if ( left  >= minWallDist - 2 && left  <= minWallDist + 2 ) leftCond  = justRight; // 15 | 13 - 17
-			if ( right >= minWallDist - 2 && right <= minWallDist + 2 ) rightCond = justRight, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 13 - 17
-			if ( ahead >= minWallDist - 2 && ahead <= minWallDist + 2 ) aheadCond = justRight; // 15 | 13 - 17
-
-			if ( left  >= minWallDist + 3 && left  <= minWallDist + 6 ) leftCond  = lilTooFar; // 15 | 18 - 21
-			if ( right >= minWallDist + 3 && right <= minWallDist + 6 ) rightCond = lilTooFar, prevWallOnRight = wallOnRight, wallOnRight++; // 15 | 18 - 21
-
-			if ( left  >= minWallDist + 7  ) leftCond  = wayTooFar; // 15 | 22 - ~
-			if ( right >= minWallDist + 7  ) rightCond = wayTooFar, prevWallOnRight = wallOnRight, wallOnRight = 0; // 15 | 22 - ~
-			if ( ahead >= minWallDist + 7  ) aheadCond = wayTooFar; // 15 | 22 - ~
+			if ( left  >= minWallDist + 7  ) { leftCond  = wayTooFar; } // 15 | 22 - ~
+			if ( right >= minWallDist + 7  ) { rightCond = wayTooFar; prevWallOnRight = wallOnRight; wallOnRight = 0; } // 15 | 22 - ~
+			if ( ahead >= minWallDist + 7  ) { aheadCond = wayTooFar; } // 15 | 22 - ~
 
 
 
@@ -559,108 +593,6 @@ int main(){
 			}
 			/*
 
-right=3 ahead=43 left=82 rightCond=1 aheadCond=0 leftCond=1 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=3 ahead=43 left=82 rightCond=1 aheadCond=1 leftCond=2 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=3 ahead=43 left=82 rightCond=1 aheadCond=2 leftCond=3 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=3 ahead=43 left=79 rightCond=1 aheadCond=3 leftCond=4 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=3 ahead=41 left=79 rightCond=1 aheadCond=4 leftCond=5 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=3 ahead=41 left=76 rightCond=1 aheadCond=5 leftCond=6 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=3 ahead=40 left=76 rightCond=1 aheadCond=6 leftCond=7 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=3 ahead=40 left=76 rightCond=1 aheadCond=7 leftCond=8 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=28
-right=4 ahead=30 left=76 rightCond=2 aheadCond=8 leftCond=9 prevWallOnRight=5 wallOnRight=5 sp
-eedLeft=20 speedRight=25
-right=4 ahead=30 left=64 rightCond=2 aheadCond=9 leftCond=10 prevWallOnRight=5 wallOnRight=5 s
-peedLeft=20 speedRight=25
-right=3 ahead=36 left=64 rightCond=1 aheadCond=10 leftCond=11 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=36 left=64 rightCond=1 aheadCond=11 leftCond=12 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=34 left=42 rightCond=1 aheadCond=12 leftCond=13 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=34 left=42 rightCond=1 aheadCond=13 leftCond=14 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=33 left=72 rightCond=1 aheadCond=14 leftCond=15 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=33 left=47 rightCond=1 aheadCond=15 leftCond=16 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=69 left=47 rightCond=1 aheadCond=16 leftCond=17 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=69 left=49 rightCond=1 aheadCond=17 leftCond=18 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=45 left=49 rightCond=1 aheadCond=18 leftCond=19 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=45 left=57 rightCond=1 aheadCond=19 leftCond=20 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=90 left=57 rightCond=1 aheadCond=20 leftCond=21 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=90 left=49 rightCond=1 aheadCond=21 leftCond=22 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=60 left=49 rightCond=1 aheadCond=22 leftCond=23 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=60 left=47 rightCond=1 aheadCond=23 leftCond=24 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=37 left=47 rightCond=1 aheadCond=24 leftCond=25 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=4 ahead=37 left=59 rightCond=2 aheadCond=25 leftCond=26 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=25
-right=4 ahead=70 left=59 rightCond=2 aheadCond=26 leftCond=27 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=25
-right=3 ahead=70 left=59 rightCond=1 aheadCond=27 leftCond=28 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=68 left=59 rightCond=1 aheadCond=28 leftCond=29 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=68 left=58 rightCond=1 aheadCond=29 leftCond=30 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=90 left=58 rightCond=1 aheadCond=30 leftCond=31 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=90 left=58 rightCond=1 aheadCond=31 leftCond=32 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=76 left=58 rightCond=1 aheadCond=32 leftCond=33 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=4 ahead=76 left=58 rightCond=2 aheadCond=33 leftCond=34 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=25
-right=4 ahead=90 left=58 rightCond=2 aheadCond=34 leftCond=35 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=25
-right=3 ahead=90 left=50 rightCond=1 aheadCond=35 leftCond=36 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=61 left=50 rightCond=1 aheadCond=36 leftCond=37 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=61 left=44 rightCond=1 aheadCond=37 leftCond=38 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=73 left=44 rightCond=1 aheadCond=38 leftCond=39 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=73 left=56 rightCond=1 aheadCond=39 leftCond=40 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=57 left=56 rightCond=1 aheadCond=40 leftCond=41 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=57 left=58 rightCond=1 aheadCond=41 leftCond=42 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=40 left=58 rightCond=1 aheadCond=42 leftCond=43 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=40 left=58 rightCond=1 aheadCond=43 leftCond=44 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=52 left=58 rightCond=1 aheadCond=44 leftCond=45 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=2 ahead=52 left=56 rightCond=1 aheadCond=45 leftCond=46 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=35 left=56 rightCond=1 aheadCond=46 leftCond=47 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=35 left=56 rightCond=1 aheadCond=47 leftCond=48 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=19 left=39 rightCond=1 aheadCond=48 leftCond=49 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-right=3 ahead=19 left=39 rightCond=1 aheadCond=49 leftCond=50 prevWallOnRight=5 wallOnRight=5 
-speedLeft=20 speedRight=28
-Command c=120
-
 			 */
 			else if ( leftCond == wayTooFar ) {
 
@@ -691,10 +623,13 @@ Command c=120
 					if ( rightCond == wayTooFar   ) actionRightWayFar( prevWallOnRight );
 				}
 			}
-			dprint(term, "right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n", right, ahead, left, rightCond, prevWallOnRight, wallOnRight, aheadCond, leftCond, speedLeft, speedRight);
+
+
+			dprint(term, "right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
+					      right,   ahead,   left,   rightCond,   aheadCond,   leftCond,   prevWallOnRight,   wallOnRight,   speedLeft,   speedRight);
 			pause(250);
 
-			drive_speed(speedLeft, speedRight);
+			driveSpeed(speedLeft, speedRight);
 
 			//pause(250);
 		}
