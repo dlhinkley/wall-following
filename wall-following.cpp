@@ -47,18 +47,10 @@ static volatile int ahead = 0,
 		keyboardCogInit = 0;
 
 
-
-
-
 unsigned int sstackA[40 + 20]; // If things get weird make this number bigger!
 unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
 unsigned int sstackR[40 + 20]; // If things get weird make this number bigger!
 unsigned int kstack[40 + 30]; // If things get weird make this number bigger!
-
-
-
-
-
 
 
 /*
@@ -262,6 +254,8 @@ class Action {
 	int speedMax;
 	int speedSlow;
 	int minWallDist;
+	enum ActionCommands {RIGHT_LIL_FAR, RIGHT_LIL_CLOSE, RIGHT_WAY_FAR, RIGHT_WAY_CLOSE};
+	ActionCommands prevCmd;
 
 	void turnRightCorner(  );
 	void driveSpeed( int, int);
@@ -410,7 +404,16 @@ void Action::leftWayClose() {
 }
 void Action::rightWayClose() {
 
-	driveSpeed(speed, speed + correctWay);
+
+	if ( prevCmd == RIGHT_WAY_CLOSE ) {
+
+		forward();
+	}
+	else {
+
+		drive_goto(-correctWay, correctWay); // 10 degrees
+	}
+	prevCmd = RIGHT_WAY_CLOSE;
 }
 void Action::leftLilClose() {
 
@@ -419,25 +422,39 @@ void Action::leftLilClose() {
 }
 void Action::rightLilClose() {
 
-	driveSpeed(speed, speed + correctLil);
-
-}
-void Action::rightLilFar() {
-
-	driveSpeed(speed + correctLil, speed);
-}
-void Action::rightWayFar( ) {
-
-	// If we detected a wall multiple times, it's a corner.
-	//
-	if ( prevWallOnRight > 10 ) {
-
-		turnRightCorner();
-	}
-	else {
+	if ( prevCmd == RIGHT_LIL_CLOSE ) {
 
 		forward();
 	}
+	else {
+
+		drive_goto(-correctLil, correctLil); // 10 degrees
+	}
+	prevCmd = RIGHT_LIL_CLOSE;
+}
+void Action::rightLilFar() {
+
+	if ( prevCmd == RIGHT_LIL_FAR ) {
+
+		forward();
+	}
+	else {
+
+		drive_goto(-correctLil, correctLil); // 10 degrees
+	}
+	prevCmd = RIGHT_LIL_FAR;
+}
+void Action::rightWayFar( ) {
+
+	if ( prevCmd == RIGHT_WAY_FAR ) {
+
+		forward();
+	}
+	else {
+
+		drive_goto(-correctWay, correctWay); // 10 degrees
+	}
+	prevCmd = RIGHT_WAY_FAR;
 }
 void Action::action() {
 
@@ -533,7 +550,7 @@ int main(){
 			aheadCond.setCondition( ahead );
 			rightCond.setCondition( right );
 
-
+/*
 			if ( leftCond.getCondition() == WAY_TOO_CLOSE ) {
 
 				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
@@ -651,11 +668,11 @@ int main(){
 					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
 			}
-			/*
 
-			 */
-			else if ( leftCond.getCondition() == WAY_TOO_FAR ) {
 
+
+			 if ( leftCond.getCondition() == WAY_TOO_FAR ) {
+*/
 				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
 
 					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.backward();
@@ -682,10 +699,11 @@ int main(){
 					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.rightLilFar();
 					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
-			}
+
+//			}
 
 
-			dprint(term, "x=%f          y=%f          heading=%f          right=%d ahead=%d left=%d rightCond=%d                     aheadCond=%d                    leftCond=%d                      prevWallOnRight=%d        wallOnRight=%d        speedLeft=%d        speedRight=%d\n",
+			dprint(term, "x=%f y=%f heading=%f right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
 					      action.loc.x, action.loc.y, action.loc.heading, right,   ahead,   left,   (int)rightCond.getCondition(),   (int)aheadCond.getCondition(),   (int)leftCond.getCondition(),   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
 
 			pause(250);
