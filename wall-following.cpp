@@ -52,6 +52,7 @@ unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
 unsigned int sstackR[40 + 20]; // If things get weird make this number bigger!
 unsigned int kstack[40 + 30]; // If things get weird make this number bigger!
 
+enum CondValue { WAY_TOO_CLOSE = 0, LIL_TOO_CLOSE, JUST_RIGHT, LIL_TOO_FAR, WAY_TOO_FAR };
 
 /*
  * Drive to find the best wall
@@ -296,8 +297,8 @@ Action::Action() {
 	speedRight = 0;
 	prevSpeedRight = 0;
 	prevSpeedLeft = 0;
-	correctLil = 2;
-	correctWay = 4;
+	correctLil = 4;
+	correctWay = 8;
 	speed = 20;
 	speedMax = 40;
 	speedSlow = 5;
@@ -323,15 +324,15 @@ void Action::goForward() {
 
 void Action::driveSpeed(int left,int right) {
 
-	if ( left != prevSpeedLeft || right != prevSpeedRight ) {
+	//if ( left != prevSpeedLeft || right != prevSpeedRight ) {
 
 		drive_speed(left, right);
-		prevSpeedLeft = left;
-		prevSpeedRight = right;
+	//	prevSpeedLeft = left;
+	//	prevSpeedRight = right;
 
-		dprint(term,"new driveSpeed left=%d right=%d\n", left, right);
-	}
-	loc.update();
+	//dprint(term,"new driveSpeed left=%d right=%d\n", left, right);
+	//}
+	//loc.update();
 }
 void Action::trapped() {
 
@@ -402,19 +403,7 @@ void Action::leftWayClose() {
 
 	driveSpeed(speed + correctWay, speed);
 }
-void Action::rightWayClose() {
 
-
-	if ( prevCmd == RIGHT_WAY_CLOSE ) {
-
-		forward();
-	}
-	else {
-
-		drive_goto(-correctWay, correctWay); // 10 degrees
-	}
-	prevCmd = RIGHT_WAY_CLOSE;
-}
 void Action::leftLilClose() {
 
 	driveSpeed(speed, speed + correctLil);
@@ -431,6 +420,18 @@ void Action::rightLilClose() {
 		drive_goto(-correctLil, correctLil); // 10 degrees
 	}
 	prevCmd = RIGHT_LIL_CLOSE;
+}
+void Action::rightWayClose() {
+
+	if ( prevCmd == RIGHT_WAY_CLOSE ) {
+
+		forward();
+	}
+	else {
+
+		drive_goto(-correctWay, correctWay); // 10 degrees
+	}
+	prevCmd = RIGHT_WAY_CLOSE;
 }
 void Action::rightLilFar() {
 
@@ -460,7 +461,6 @@ void Action::action() {
 
 }
 
-enum CondValue { WAY_TOO_CLOSE, LIL_TOO_CLOSE, JUST_RIGHT, LIL_TOO_FAR, WAY_TOO_FAR };
 
 class Condition {
 
@@ -672,6 +672,8 @@ int main(){
 
 
 			 if ( leftCond.getCondition() == WAY_TOO_FAR ) {
+
+
 */
 				if ( aheadCond.getCondition() == WAY_TOO_CLOSE ) {
 
@@ -690,7 +692,15 @@ int main(){
 					if ( rightCond.getCondition() == LIL_TOO_FAR   ) action.left90();
 					if ( rightCond.getCondition() == WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
+/*
 
+right=3 ahead=52 left=61 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
+right=3 ahead=52 left=79 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
+right=3 ahead=34 left=79 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
+right=3 ahead=34 left=75 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
+right=28 ahead=27 left=52 rightCond=1 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
+
+ */
 				else if ( aheadCond.getCondition() == WAY_TOO_FAR ) {
 
 					if ( rightCond.getCondition() == WAY_TOO_CLOSE ) action.rightWayClose();
@@ -703,8 +713,10 @@ int main(){
 //			}
 
 
-			dprint(term, "x=%f y=%f heading=%f right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
-					      action.loc.x, action.loc.y, action.loc.heading, right,   ahead,   left,   (int)rightCond.getCondition(),   (int)aheadCond.getCondition(),   (int)leftCond.getCondition(),   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
+//			dprint(term, "x=%f y=%f heading=%f right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
+//					      action.loc.x, action.loc.y, action.loc.heading, right,   ahead,   left,   (int)rightCond.getCondition(),   (int)aheadCond.getCondition(),   (int)leftCond.getCondition(),   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
+			dprint(term, "right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
+					      right,   ahead,   left,  (int)rightCond.getCondition(),   (int)aheadCond.getCondition(),   (int)leftCond.getCondition(),   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
 
 			pause(250);
 
