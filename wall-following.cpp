@@ -52,7 +52,7 @@ unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
 unsigned int sstackR[40 + 20]; // If things get weird make this number bigger!
 unsigned int kstack[40 + 30]; // If things get weird make this number bigger!
 
-enum CondValue { WAY_TOO_CLOSE = 0, LIL_TOO_CLOSE, JUST_RIGHT, LIL_TOO_FAR, WAY_TOO_FAR };
+enum CondValue { WAY_TOO_CLOSE = 0, LIL_TOO_CLOSE, JUST_RIGHT, LIL_TOO_FAR, WAY_TOO_FAR, NONE };
 
 /*
  * Drive to find the best wall
@@ -478,6 +478,7 @@ class Condition {
 Condition::Condition() {
 
 	minWallDist = 10;
+	cond = NONE;
 }
 CondValue Condition::getCondition() {
 
@@ -485,15 +486,83 @@ CondValue Condition::getCondition() {
 }
 void Condition::setCondition(int distance) {
 
-	if ( distance  >= 0 && distance  <= minWallDist - 7 ) { cond  = WAY_TOO_CLOSE; } // 15 | 5 - 8
-
-	if ( distance  >= minWallDist - 6 && distance  <= minWallDist - 3 ) { cond = LIL_TOO_CLOSE; } // 15 | 9 - 12
-
-	if ( distance  >= minWallDist - 2 && distance  <= minWallDist + 2 ) { cond  = JUST_RIGHT; } // 15 | 13 - 17
-
-	if ( distance  >= minWallDist + 3 && distance  <= minWallDist + 6 ) { cond  = LIL_TOO_FAR; } // 15 | 18 - 21
-
-	if ( distance  >= minWallDist + 7  ) { cond  = WAY_TOO_FAR; } // 15 | 22 - ~
+	// 10 | 0 - 2
+	if ( distance  >= 0 && distance  <= minWallDist - 8 ) { 
+	
+		cond  = WAY_TOO_CLOSE; 
+	}
+	// Buffer ethier way depending on last condition to prevent flipping quickly
+	// 10 | 3 - 4
+	else if ( distance  >= minWallDist - 7 && distance  <= minWallDist - 6 ) { 
+	
+		if ( cond != LIL_TOO_CLOSE ) {
+		
+			cond  = WAY_TOO_CLOSE;
+		}
+		else {
+		
+			cond = LIL_TOO_CLOSE; 
+		}
+	} 
+	// 10 | 5 - 7
+	else if ( distance  >= minWallDist - 5 && distance  <= minWallDist - 3 ) { 
+	
+		cond = LIL_TOO_CLOSE; 
+	} 
+	// Buffer ethier way depending on last condition to prevent flipping quickly
+	// 10 | 8 - 9
+	else if ( distance  >= minWallDist - 2 && distance  <= minWallDist - 1 ) { 
+	
+		if ( cond != JUST_RIGHT ) {
+		
+			cond  = LIL_TOO_CLOSE;
+		}
+		else {
+		
+			cond = JUST_RIGHT; 
+		}
+	} 
+	// 10 | 10 - 12
+	else if ( distance  >= minWallDist && distance  <= minWallDist + 2 ) { 
+		
+		cond  = JUST_RIGHT; 
+	} 
+	// Buffer ethier way depending on last condition to prevent flipping quickly
+	// 10 | 13 - 14
+	else if ( distance  >= minWallDist + 3 && distance  <= minWallDist + 4 ) { 
+	
+		if ( cond != LIL_TOO_FAR ) {
+		
+			cond  = JUST_RIGHT;
+		}
+		else {
+		
+			cond = LIL_TOO_FAR; 
+		}
+	} 
+	// 10 | 15 - 17
+	else if ( distance  >= minWallDist + 5 && distance  <= minWallDist + 7 ) { 
+	
+		cond  = LIL_TOO_FAR; 
+	} 
+	// Buffer ethier way depending on last condition to prevent flipping quickly
+	// 10 | 18 - 19
+	else if ( distance  >= minWallDist + 8 && distance  <= minWallDist + 9 ) { 
+	
+		if ( cond != WAY_TOO_FAR ) {
+		
+			cond  = LIL_TOO_FAR;
+		}
+		else {
+		
+			cond = WAY_TOO_FAR; 
+		}
+	} 
+	// 10 | 20 - ~
+	else if ( distance  >= minWallDist + 10  ) { 
+		
+		cond  = WAY_TOO_FAR; 
+	} 
 }
 
 int main(){
