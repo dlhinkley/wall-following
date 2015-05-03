@@ -254,7 +254,7 @@ class Action {
 	int speedMax;
 	int speedSlow;
 	int minWallDist;
-	enum ActionCommands {RIGHT_WAY_CLOSE = 0, RIGHT_LIL_CLOSE, RIGHT_JUST_RIGHT, RIGHT_LIL_FAR, RIGHT_WAY_FAR, INIT };
+	enum ActionCommands {RIGHT_WAY_CLOSE = 0, RIGHT_JUST_RIGHT, RIGHT_WAY_FAR, INIT };
 
 	void turnRightCorner(  );
 	void driveSpeed( int, int);
@@ -271,11 +271,8 @@ public:
 	void rightJustRight();
 	void leftJustRight();
 	void leftWayClose();
-	void rightLilFar();
 	void rightWayFar();
 	void rightWayClose();
-	void rightLilClose();
-	void leftLilClose();
 	void action();
 	void drive();
 	void goLeft();
@@ -301,8 +298,7 @@ Action::Action() {
 	this->speedRight = 0;
 	this->prevSpeedRight = 0;
 	this->prevSpeedLeft = 0;
-	this->correctLil = 3;
-	this->correctWay = 4;
+	this->correct = 4;
 	this->speed = 20;
 	this->speedMax = 40;
 	this->speedSlow = 5;
@@ -416,14 +412,10 @@ void Action::leftJustRight() {
 }
 void Action::leftWayClose() {
 
-	driveSpeed(this->speed + this->correctWay,this-> speed);
+	driveSpeed(this->speed + this->correct,this-> speed);
 }
 
-void Action::leftLilClose() {
 
-	driveSpeed(this->speed, this->speed + this->correctLil);
-
-}
 void Action::rightJustRight() {
 
 	// correct based on dynamic adjustment right or left of right
@@ -431,11 +423,7 @@ void Action::rightJustRight() {
 	// 15 - 16 = -1 too far so left should go slower
 	int adj = (this->minWallDist - this->right) ;
 
-	if ( this->prevCmd == this->RIGHT_LIL_CLOSE ) {
-
-		driveSpeed(this->speed + adj, this->speed);
-	}
-	else if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
+	if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
 
 		driveSpeed(this->speed + adj, this->speed);
 	}
@@ -445,54 +433,20 @@ void Action::rightJustRight() {
 	}
 	this->prevCmd = this->RIGHT_JUST_RIGHT;
 }
-void Action::rightLilClose() {
 
-	if ( this->prevCmd == this->RIGHT_LIL_CLOSE ) {
-
-		forward();
-	}
-	else if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
-
-		forward(); // keep driving at angle
-	}
-	else {
-
-		driveGoto(-this->correctLil, this->correctLil); // 10 degrees
-	}
-	this->prevCmd = this->RIGHT_LIL_CLOSE;
-}
 void Action::rightWayClose() {
 
-	if ( this->prevCmd == this->RIGHT_LIL_CLOSE ) {
-
-		forward();
-	}
-	else if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
+	if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
 
 		forward();
 	}
 	else {
 
-		driveGoto(-this->correctWay, this->correctWay); // 10 degrees
+		driveGoto(-this->correct, this->correct); // 10 degrees
 	}
 	this->prevCmd = this->RIGHT_WAY_CLOSE;
 }
-void Action::rightLilFar() {
 
-	if ( this->prevCmd == this->RIGHT_LIL_FAR ) {
-
-		forward();
-	}
-	else if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
-
-		driveGoto(this->correctLil, -this->correctLil); // Reduce the way close angle
-	}
-	else {
-
-		driveGoto(-this->correctLil, this->correctLil); // 10 degrees
-	}
-	this->prevCmd = this->RIGHT_LIL_FAR;
-}
 void Action::rightWayFar( ) {
 
 	if ( this->prevCmd == this->RIGHT_WAY_FAR ) {
@@ -501,7 +455,7 @@ void Action::rightWayFar( ) {
 	}
 	else {
 
-		driveGoto(-this->correctWay, this->correctWay); // 10 degrees
+		driveGoto(-this->correct, this->correct); // 10 degrees
 	}
 	this->prevCmd = this->RIGHT_WAY_FAR;
 }
@@ -517,12 +471,11 @@ class Condition {
 
 
 	public:
-		enum CondValue { WAY_TOO_CLOSE = 0, LIL_TOO_CLOSE, JUST_RIGHT, LIL_TOO_FAR, WAY_TOO_FAR, NONE };
+		enum CondValue { WAY_TOO_CLOSE = 0, JUST_RIGHT, WAY_TOO_FAR, NONE };
 		CondValue condition;
 		Condition();
 		void setCondition(int);
 		int distance;
-
 };
 Condition::Condition() {
 
@@ -533,85 +486,47 @@ Condition::Condition() {
 void Condition::setCondition(int distance) {
 
 	this->distance = distance;
-	// 10 | 0 - 2
-	if ( distance  >= 0 && distance  <= minWallDist - 8 ) { 
+	// 10 | 0 - 3
+	if ( distance  >= 0 && distance  <= minWallDist - 7 ) { 
 	
 		this->condition  = WAY_TOO_CLOSE;
 	}
 	// Buffer either way depending on last condition to prevent flapping quickly
-	// 10 | 3 - 4
-	else if ( distance  >= minWallDist - 7 && distance  <= minWallDist - 6 ) { 
-	
-		if ( this->condition != LIL_TOO_CLOSE ) {
-		
-			this->condition  = WAY_TOO_CLOSE;
-		}
-		else {
-		
-			this->condition = LIL_TOO_CLOSE;
-		}
-	} 
-	// 10 | 5 - 7
-	else if ( distance  >= minWallDist - 5 && distance  <= minWallDist - 3 ) { 
-	
-		this->condition = LIL_TOO_CLOSE;
-	} 
-	// Buffer either way depending on last condition to prevent flapping quickly
-	// 10 | 8 - 9
-	else if ( distance  >= minWallDist - 2 && distance  <= minWallDist - 1 ) { 
+	// 10 | 4 - 6
+	else if ( distance  >= minWallDist - 6 && distance  <= minWallDist - 4 ) { 
 	
 		if ( this->condition != JUST_RIGHT ) {
 		
-			this->condition  = LIL_TOO_CLOSE;
+			this->condition  = WAY_TOO_CLOSE;
 		}
 		else {
 		
 			this->condition = JUST_RIGHT;
 		}
 	} 
-	// 10 | 10 - 12
-	else if ( distance  >= minWallDist && distance  <= minWallDist + 2 ) { 
+	// 10 | 7 - 13
+	else if ( distance  >= minWallDist - 3 && distance  <= minWallDist + 3 ) { 
 		
 		this->condition  = JUST_RIGHT;
 	} 
 	// Buffer either way depending on last condition to prevent flapping quickly
-	// 10 | 13 - 14
-	else if ( distance  >= minWallDist + 3 && distance  <= minWallDist + 4 ) { 
-	
-		if ( this->condition != LIL_TOO_FAR ) {
-		
-			this->condition  = JUST_RIGHT;
-		}
-		else {
-		
-			this->condition = LIL_TOO_FAR;
-		}
-	} 
-	// 10 | 15 - 17
-	else if ( distance  >= minWallDist + 5 && distance  <= minWallDist + 7 ) { 
-	
-		this->condition  = LIL_TOO_FAR;
-	} 
-	// Buffer either way depending on last condition to prevent flapping quickly
-	// 10 | 18 - 19
-	else if ( distance  >= minWallDist + 8 && distance  <= minWallDist + 9 ) { 
+	// 10 | 14 - 16
+	else if ( distance  >= minWallDist + 4 && distance  <= minWallDist + 6 ) { 
 	
 		if ( this->condition != WAY_TOO_FAR ) {
 		
-			this->condition  = LIL_TOO_FAR;
+			this->condition  = JUST_RIGHT;
 		}
 		else {
 		
 			this->condition = WAY_TOO_FAR;
 		}
 	} 
-	// 10 | 20 - ~
-	else if ( distance  >= minWallDist + 10  ) { 
+	// 10 | 17 - ~
+	else if ( distance  >= minWallDist + 17  ) { 
 		
 		this->condition  = WAY_TOO_FAR;
 	} 
-
-
 	//dprint(term,"setCondition distance=%d condition=%d\n",distance,this->condition);
 }
 
@@ -676,58 +591,22 @@ int main(){
 				if ( aheadCond.condition == Condition::WAY_TOO_CLOSE ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.trapped();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
 				else if ( aheadCond.condition == Condition::JUST_RIGHT ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.trapped();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
 				else if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.leftWayClose();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.leftWayClose();
-				}
-			}
-
-			else if ( leftCond.condition == Condition::LIL_TOO_CLOSE ) {
-
-				if ( aheadCond.condition == Condition::WAY_TOO_CLOSE ) {
-
-					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.trapped();
-					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backUp90Right();
-				}
-
-				else if ( aheadCond.condition == Condition::JUST_RIGHT ) {
-
-					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.trapped();
-					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backUp90Right();
-				}
-
-				else if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
-
-					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.leftLilClose();
-					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.leftLilClose();
 				}
 			}
 			else if ( leftCond.condition == Condition::JUST_RIGHT ) {
@@ -735,98 +614,46 @@ int main(){
 				if ( aheadCond.condition == Condition::WAY_TOO_CLOSE ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.trapped();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
 				else if ( aheadCond.condition == Condition::JUST_RIGHT ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.trapped();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.trapped();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.trapped();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backUp90Right();
 				}
 
 				else if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.backward();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.backward();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.right90();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.rightLilFar();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
 			}
-			else if ( leftCond.condition == Condition::LIL_TOO_FAR ) {
-
-				if ( aheadCond.condition == Condition::WAY_TOO_CLOSE ) {
-
-					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.backward();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.backward();
-					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.backward();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.backward();
-					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backward();
-				}
-
-				else if ( aheadCond.condition == Condition::JUST_RIGHT ) {
-
-					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.backward();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.backward();
-					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.left90();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.left90();
-					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
-				}
-
-				else if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
-
-					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.rightWayClose();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.rightLilClose();
-					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.rightJustRight();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.rightLilFar();
-					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
-				}
-			}
-
-
-
 			 if ( leftCond.condition == Condition::WAY_TOO_FAR ) {
 
-
-
 				if ( aheadCond.condition == Condition::WAY_TOO_CLOSE ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.backward();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.backward();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.backward();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.backward();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.backward();
 				}
 
 				else if ( aheadCond.condition == Condition::JUST_RIGHT ) {
 
 					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.backward();
-					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.backward();
 					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.left90();
-					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.left90();
 					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
 				}
 
-
-right=3 ahead=52 left=61 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
-right=3 ahead=52 left=79 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
-right=3 ahead=34 left=79 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
-right=3 ahead=34 left=75 rightCond=0 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
-right=28 ahead=27 left=52 rightCond=1 aheadCond=4 leftCond=4 prevWallOnRight=0 wallOnRight=0 speedLeft=0 speedRight=0
 
  */
 //				 if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
 //
 //					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.rightWayClose();
-//					if ( rightCond.condition == Condition::LIL_TOO_CLOSE ) action.rightLilClose();
 //					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.rightJustRight();
-//					if ( rightCond.condition == Condition::LIL_TOO_FAR   ) action.rightLilFar();
 //					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
 //				}
 
