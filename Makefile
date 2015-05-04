@@ -8,5 +8,8 @@ build:
 load:
 	/opt/parallax/bin/propeller-load -Dreset=dtr -I /opt/parallax/propeller-load/ -b ACTIVITYBOARD cmm/wall-following.elf -r -p /dev/ttyUSB0
 
+eprom:
+	/opt/parallax/bin/propeller-load -Dreset=dtr -I /opt/parallax/propeller-load/ -b ACTIVITYBOARD cmm/wall-following.elf -e -r -p /dev/ttyUSB0
+
 term:
-	minicom -b 115200 -o -D /dev/ttyUSB0
+	echo '' > minicom.cap && minicom -b 115200 -o -D /dev/ttyUSB0 --capturefile=minicom.cap

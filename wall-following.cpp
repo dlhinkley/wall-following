@@ -35,21 +35,18 @@ int PINGA = 0,
 		PINGL = 16,
 		PINGR = 17;
 
+const int TARGET_WALL_DIST = 4;
 
 static volatile int ahead = 0,
 		left = 0,
 		right = 0,
 		isRunning = 1,
 		isWallFollowing = 0,
-		scanCogInitA = 0,
-		scanCogInitL = 0,
-		scanCogInitR = 0,
+		scanCogInit = 0,
 		keyboardCogInit = 0;
+int initialized = 0;
 
-
-unsigned int sstackA[40 + 20]; // If things get weird make this number bigger!
-unsigned int sstackL[40 + 20]; // If things get weird make this number bigger!
-unsigned int sstackR[40 + 20]; // If things get weird make this number bigger!
+unsigned int sstack[40 + 20]; // If things get weird make this number bigger!
 unsigned int kstack[40 + 30]; // If things get weird make this number bigger!
 
 
@@ -109,15 +106,14 @@ int getPing(int port) {
 
 		int ping = ping_cm( port );
 		sum += ping;
-		//printf("Ping %d = %d\n",i,ping);
+		//dprint(term,"Ping %d = %d\n",i,ping);
 		//sumsq+= data[i] * data[i];
 	}
 	int mean = sum / qty;
 	//int varience = sumsq / size - mean * mean;
-	//printf("The mean is: %d\n", mean);
+	//dprint(term,"The mean is: %d\n\n", mean);
 	//printf("Variance is: %d\n", varience);
 	//  printf("Returned mean= %d\n", mean);
-
 	return mean;
 }
 
@@ -125,36 +121,20 @@ int getPing(int port) {
 /*
  * Runs in cog
  */
-void scanCogA(void *par) {
 
-	//dprint(term,"scanCogA Start\n");
 
-	while( isRunning ) {
-
-		ahead = getPing(PINGA);
-		scanCogInitA = 1; // scan Cog initilized
-	}
-	//dprint(term,"scanCogA End\n");
-}
-void scanCogL(void *par) {
-
-	//dprint(term,"scanCogL Start\n");
-
-	while( isRunning ) {
-
-		left = getPing(PINGL);
-		scanCogInitL = 1; // scan Cog initilized
-	}
-	// dprint(term,"scanCogL End\n");
-}
-void scanCogR(void *par) {
+void scanCog(void *par) {
 
 	//dprint(term,"scanCogR Start\n");
 
 	while( isRunning ) {
 
 		right = getPing(PINGR);
-		scanCogInitR = 1; // scan Cog initilized
+
+		left = getPing(PINGL);
+
+		ahead = getPing(PINGA);
+		scanCogInit = 1; // scan Cog initilized
 	}
 	// dprint(term,"scanCogR End\n");
 }
@@ -164,7 +144,7 @@ void scanCogR(void *par) {
  */
 void keyboardCog(void *par) {
 
-	dprint(term,"keyboardCog Start\n");
+	dprint(term,"DEBUG:keyboardCog Start\n");
 
 	char c = 0;                                   // Stores character input
 
@@ -183,13 +163,13 @@ void keyboardCog(void *par) {
 		if ( c == 'x' ) isRunning = 0;
 		if ( c == 'w' ) isWallFollowing = !isWallFollowing; // If 'w', toggle on/off
 
-		if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"Command c=%d\n",c);
+		//if ( c == 'x' || c == 't' || c == 's' || c == 'r' || c  == 'l' || c == 'b' || c == 'f' )  dprint(term,"DEBUG:Command c=%d\n",c);
 
 		//    calcCoordinates();  // Check for ticks
 
 		keyboardCogInit = 1; // Cog initilized
 	}
-	dprint(term,"keyboardCog End\n");
+	dprint(term,"DEBUG:keyboardCog End\n");
 }
 class Location {
 	int ticksLeft, ticksRight, ticksLeftOld, ticksRightOld;
@@ -245,15 +225,57 @@ void Location::update() {
 
 }
 
+class Condition {
+
+
+
+
+	public:
+		enum CondValue { WAY_TOO_CLOSE = 0, JUST_RIGHT, WAY_TOO_FAR, NONE };
+		CondValue condition;
+		Condition();
+		void setCondition(int);
+		int distance;
+};
+Condition::Condition() {
+	this->condition = NONE;
+}
+
+void Condition::setCondition(int distance) {
+
+	this->distance = distance;
+	// 6 | 0 - 2
+	if ( this->distance  >= 0 && this->distance  <= TARGET_WALL_DIST  ) {
+
+		this->condition  = this->JUST_RIGHT;
+	}
+	// Buffer either way depending on last condition to prevent flapping quickly
+	// 6 | 3 - 4
+	else if ( this->distance  >= TARGET_WALL_DIST + 1  && this->distance  <= TARGET_WALL_DIST + 2 ) {
+
+		if ( this->condition != this->JUST_RIGHT ) {
+
+			this->condition  = this->WAY_TOO_FAR;
+		}
+		else {
+
+			this->condition = this->JUST_RIGHT;
+		}
+	}
+
+	// 6 | 10 - ~
+	else if ( this->distance  >= TARGET_WALL_DIST + 3  ) {
+
+		this->condition  = this->WAY_TOO_FAR;
+	}
+	//dprint(term,"setCondition distance=%d condition=%d\n",distance,this->condition);
+}
 class Action {
 	int prevSpeedRight;
 	int prevSpeedLeft;
-	int correctLil;
-	int correctWay;
 	int speed;
 	int speedMax;
 	int speedSlow;
-	int minWallDist;
 	enum ActionCommands {RIGHT_WAY_CLOSE = 0, RIGHT_JUST_RIGHT, RIGHT_WAY_FAR, INIT };
 
 	void turnRightCorner(  );
@@ -283,11 +305,11 @@ public:
 	void setDistances(int,int,int);
 	int speedLeft;
 	int speedRight;
-	int prevWallOnRight;
-	int wallOnRight;
 	int left;
 	int right;
 	int ahead;
+	int correct;
+
 	Location loc;
 	ActionCommands prevCmd;
 
@@ -302,7 +324,6 @@ Action::Action() {
 	this->speed = 20;
 	this->speedMax = 40;
 	this->speedSlow = 5;
-	this->minWallDist = 10;
 	this->prevCmd = INIT;
 }
 /**
@@ -337,20 +358,20 @@ void Action::driveGoto(int left,int right) {
 	//	prevSpeedLeft = left;
 	//	prevSpeedRight = right;
 
-	dprint(term,"new driveGoto left=%d right=%d\n", left, right);
+	//dprint(term,"DEBUG:new driveGoto left=%d right=%d\n", left, right);
 	//}
 	//loc.update();
 }
 void Action::driveSpeed(int left,int right) {
 
-	//if ( left != prevSpeedLeft || right != prevSpeedRight ) {
+	if ( left != this->prevSpeedLeft || right != this->prevSpeedRight ) {
 
 		drive_speed(left, right);
-	//	prevSpeedLeft = left;
-	//	prevSpeedRight = right;
+		this->prevSpeedLeft = left;
+		this->prevSpeedRight = right;
 
-	dprint(term,"new driveSpeed left=%d right=%d\n", left, right);
-	//}
+		//dprint(term,"DEBUG:new driveSpeed left=%d right=%d\n", left, right);
+	}
 	//loc.update();
 }
 void Action::trapped() {
@@ -386,7 +407,7 @@ void Action::forward() {
 void Action::turnRightCorner(  ) {
 
 	// Go straight until past corner
-	int dist = 0.325 * this->minWallDist + 50;
+	int dist = 0.325 * TARGET_WALL_DIST + 50;
 
 	driveGoto(dist,dist);
 
@@ -406,7 +427,7 @@ void Action::leftJustRight() {
 	// correct based on dynamic adjustment right or left of right
 	// 15 - 14 = 1 too close so left should go faster
 	// 15 - 16 = -1 too far so left should go slower
-	int adj = (this->minWallDist - this->left) ;
+	int adj = (TARGET_WALL_DIST - this->left) ;
 
 	driveSpeed(this->speed + adj, this->speed);
 }
@@ -421,42 +442,49 @@ void Action::rightJustRight() {
 	// correct based on dynamic adjustment right or left of right
 	// 15 - 14 = 1 too close so left should go faster
 	// 15 - 16 = -1 too far so left should go slower
-	int adj = (this->minWallDist - this->right) ;
 
-	if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
+//	if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
+//
+//		driveSpeed(this->speed + adj, this->speed - adj);
+//	}
+//	else {
 
-		driveSpeed(this->speed + adj, this->speed);
-	}
-	else {
+//	}
+	int adj = (TARGET_WALL_DIST - this->right) * 2;
+	driveSpeed(this->speed - adj, this->speed + adj);
 
-		driveSpeed(this->speed + adj, this->speed);
-	}
 	this->prevCmd = this->RIGHT_JUST_RIGHT;
 }
 
 void Action::rightWayClose() {
 
-	if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
+//	if ( this->prevCmd == this->RIGHT_WAY_CLOSE ) {
+//
+//		forward();
+//	}
+//	else {
+//
+//		driveGoto(-this->correct, this->correct); // 10 degrees
+//	}
+	int adj = (TARGET_WALL_DIST - this->right) ;
+	driveSpeed(this->speed - adj, this->speed);
 
-		forward();
-	}
-	else {
-
-		driveGoto(-this->correct, this->correct); // 10 degrees
-	}
 	this->prevCmd = this->RIGHT_WAY_CLOSE;
 }
 
 void Action::rightWayFar( ) {
 
-	if ( this->prevCmd == this->RIGHT_WAY_FAR ) {
+	int adj = (TARGET_WALL_DIST - this->right) * 3;
+	driveSpeed(this->speed - adj, this->speed + adj);
 
-		forward();
-	}
-	else {
-
-		driveGoto(-this->correct, this->correct); // 10 degrees
-	}
+//	if ( this->prevCmd == this->RIGHT_WAY_FAR ) {
+//
+//		forward();
+//	}
+//	else {
+//
+//		driveGoto(-this->correct, this->correct); // 10 degrees
+//	}
 	this->prevCmd = this->RIGHT_WAY_FAR;
 }
 void Action::action() {
@@ -464,71 +492,6 @@ void Action::action() {
 }
 
 
-class Condition {
-
-	int minWallDist;
-
-
-
-	public:
-		enum CondValue { WAY_TOO_CLOSE = 0, JUST_RIGHT, WAY_TOO_FAR, NONE };
-		CondValue condition;
-		Condition();
-		void setCondition(int);
-		int distance;
-};
-Condition::Condition() {
-
-	this->minWallDist = 10;
-	this->condition = NONE;
-}
-
-void Condition::setCondition(int distance) {
-
-	this->distance = distance;
-	// 10 | 0 - 3
-	if ( distance  >= 0 && distance  <= minWallDist - 7 ) { 
-	
-		this->condition  = WAY_TOO_CLOSE;
-	}
-	// Buffer either way depending on last condition to prevent flapping quickly
-	// 10 | 4 - 6
-	else if ( distance  >= minWallDist - 6 && distance  <= minWallDist - 4 ) { 
-	
-		if ( this->condition != JUST_RIGHT ) {
-		
-			this->condition  = WAY_TOO_CLOSE;
-		}
-		else {
-		
-			this->condition = JUST_RIGHT;
-		}
-	} 
-	// 10 | 7 - 13
-	else if ( distance  >= minWallDist - 3 && distance  <= minWallDist + 3 ) { 
-		
-		this->condition  = JUST_RIGHT;
-	} 
-	// Buffer either way depending on last condition to prevent flapping quickly
-	// 10 | 14 - 16
-	else if ( distance  >= minWallDist + 4 && distance  <= minWallDist + 6 ) { 
-	
-		if ( this->condition != WAY_TOO_FAR ) {
-		
-			this->condition  = JUST_RIGHT;
-		}
-		else {
-		
-			this->condition = WAY_TOO_FAR;
-		}
-	} 
-	// 10 | 17 - ~
-	else if ( distance  >= minWallDist + 17  ) { 
-		
-		this->condition  = WAY_TOO_FAR;
-	} 
-	//dprint(term,"setCondition distance=%d condition=%d\n",distance,this->condition);
-}
 
 int main(){
 
@@ -547,21 +510,24 @@ int main(){
 
 
 	// Start the ping cog
-	int scanCogPtrA    = cogstart(&scanCogA, NULL, sstackA, sizeof(sstackA));
-	int scanCogPtrL    = cogstart(&scanCogL, NULL, sstackL, sizeof(sstackL));
-	int scanCogPtrR    = cogstart(&scanCogR, NULL, sstackR, sizeof(sstackR));
+	int scanCogPtr    = cogstart(&scanCog, NULL, sstack, sizeof(sstack));
 
 	int keyboardCogPtr = cogstart(&keyboardCog, NULL, kstack, sizeof(kstack));
 
-	dprint(term,"main Start\n");
+	dprint(term,"DEBUG:main Start\n");
 
-	while ( scanCogInitA == 0 || scanCogInitL == 0 || scanCogInitR == 0 || keyboardCogInit == 0 ) {
+	while ( scanCogInit == 0 || keyboardCogInit == 0 ) {
 
 		// Wait for cogs to initialize
 		pause(500);
-		dprint(term,"main Waiting for Cog initialization\n");
+		dprint(term,"DEBUG:main Waiting for Cog initialization\n");
 	}
-	dprint(term,"All Cogs initialized\n");
+	if ( initialized == 0 ) {
+
+		initialized = 1;
+		dprint(term,"READY\n");
+	}
+	//dprint(term,"DEBUG:All Cogs initialized\n");
 
 	drive_setRampStep(10);                      // 10 ticks/sec / 20 ms
 
@@ -571,7 +537,7 @@ int main(){
 
 	//findWall();
 
-	dprint(term,"main follow wall start\n");
+	//dprint(term,"DEBUG:main follow wall start\n");
 
 
 	// Keep running
@@ -652,9 +618,9 @@ int main(){
  */
 //				 if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
 //
-//					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.rightWayClose();
-//					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.rightJustRight();
-//					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
+					if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.rightWayClose();
+					if ( rightCond.condition == Condition::JUST_RIGHT    ) action.rightJustRight();
+					if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
 //				}
 
 //			}
@@ -662,8 +628,8 @@ int main(){
 
 //			dprint(term, "x=%f y=%f heading=%f right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
 //					      action.loc.x, action.loc.y, action.loc.heading, right,   ahead,   left,   (int)rightCond.condition,   (int)aheadCond.condition,   (int)leftCond.condition,   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
-			dprint(term, "right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevCmd=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
-					      rightCond.distance,   aheadCond.distance,   leftCond.distance,  (int)rightCond.condition,   (int)aheadCond.condition,   (int)leftCond.condition,   action.prevCmd,   action.wallOnRight,   action.speedLeft,   action.speedRight);
+			dprint(term, "STATUS:right=%d\tahead=%d\tleft=%d\trightCond=%d\taheadCond=%d\tleftCond=%d\tprevCmd=%d\tspeedLeft=%d\tspeedRight=%d\n",
+					      rightCond.distance,   aheadCond.distance,   leftCond.distance,  (int)rightCond.condition,   (int)aheadCond.condition,   (int)leftCond.condition,   action.prevCmd,   action.speedLeft,   action.speedRight);
 
 			pause(250);
 
@@ -671,15 +637,14 @@ int main(){
 		//printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
 
 	}
-	dprint(term,"main follow wall stop\n");
+	dprint(term,"END\n");
+	dprint(term,"DEBUG:main follow wall stop\n");
 
 	servo_stop();                               // Stop servo process
 	drive_goto(0,0);
-	cogstop( scanCogPtrA );
-	cogstop( scanCogPtrL );
-	cogstop( scanCogPtrR );
+	cogstop( scanCogPtr );
 	cogstop( keyboardCogPtr );
 
-	dprint(term,"main End\n");
+	dprint(term,"DEBUG:main End\n");
 	return 0;
 } 
