@@ -110,7 +110,7 @@ public class SerialTest implements SerialPortEventListener {
 			System.out.println("Ready Detected");
 			try {
 				
-				output.write('w');
+				output.write("up 20 20\n".getBytes());
 			}
 			catch (IOException e) {
 				
@@ -121,19 +121,21 @@ public class SerialTest implements SerialPortEventListener {
 			
 			System.out.println("End Detected");
 		}
+
 		else if ( inputLine.startsWith("STATUS:") ) {
 			
 			System.out.println("Status Detected");
-			try {
-				
-				output.write('x');
-			}
-			catch (IOException e) {
-				
-				System.out.println(e.getMessage());
-			}
+//			try {
+//				
+//				//output.writeLine("speed 0 0");
+//			}
+//			catch (IOException e) {
+//				
+//				System.out.println(e.getMessage());
+//			}
 			
 		}
+	
 		
 	}
 	public static void main(String[] args) throws Exception {

@@ -42,14 +42,13 @@ static volatile int ahead = 0,
 		right = 0,
 		isRunning = 1,
 		isWallFollowing = 0,
-		scanCogInit = 0,
-		keyboardCogInit = 0;
+		scanCogInit = 0;
+
 int initialized = 0,
 		speedLeft = 0,
 		speedRight = 0;
 
 unsigned int sstack[40 + 20]; // If things get weird make this number bigger!
-unsigned int kstack[40 + 30]; // If things get weird make this number bigger!
 
 
 /**
@@ -97,6 +96,7 @@ void scanCog(void *par) {
  */
 void executeCommand(char cmdbuf[], int  val, int val2) {
 
+	dprint(term,"DEBUG:executeCommand cmdbuf=%s val1=%d val2=%d\n",cmdbuf, val, val2);
 
 	if ( strcmp(cmdbuf,"speed") == 0 ) {
 		drive_setMaxSpeed(val);
@@ -127,8 +127,6 @@ void executeCommand(char cmdbuf[], int  val, int val2) {
  * Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
  */
 void pollSerial() {
-
-	dprint(term,"DEBUG:keyboardCog Start\n");
 
 	char c = 0;                                   // Stores character input
 
@@ -165,8 +163,6 @@ void pollSerial() {
 		val1 = atoi(valbuf1);                      // Convert string to value
 
 
-		i += strlen(cmdbuf);                     // Idx up by command char count
-
 		// Parse distance argument
 		while(!isdigit(sbuf[i])) i++;             // Find 1st digit after command
 
@@ -175,6 +171,7 @@ void pollSerial() {
 		i += strlen(valbuf2);                     // Idx up by value char count
 
 		val2 = atoi(valbuf2);                      // Convert string to value
+
 
 		executeCommand(cmdbuf, val1, val2);
 	}
@@ -255,7 +252,7 @@ int main(){
 
 	dprint(term,"DEBUG:main Start\n");
 
-	while ( scanCogInit == 0 || keyboardCogInit == 0 ) {
+	while ( scanCogInit == 0  ) {
 
 		// Wait for cogs to initialize
 		pause(500);
@@ -289,7 +286,7 @@ int main(){
 		dprint(term, "STATUS:right=%d\tahead=%d\tleft=%d\tspeedLeft=%d\tspeedRight=%d\n",
 				      right,   ahead,   left,   speedLeft,   speedRight);
 
-		pause(250);
+		pause(500);
 	}
 	dprint(term,"END\n");
 	dprint(term,"DEBUG:main follow wall stop\n");
