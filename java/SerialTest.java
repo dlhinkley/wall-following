@@ -1,3 +1,6 @@
+package com.duanehinkley;
+
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -7,7 +10,6 @@ import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent; 
 import gnu.io.SerialPortEventListener; 
 import java.util.Enumeration;
-
 
 public class SerialTest implements SerialPortEventListener {
 	SerialPort serialPort;
@@ -30,6 +32,8 @@ public class SerialTest implements SerialPortEventListener {
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 115200;
+	private WallFollowing wallFollowing = new WallFollowing();
+
 
 	public void initialize() {
                 // the next line is for Raspberry Pi and 
@@ -103,19 +107,24 @@ public class SerialTest implements SerialPortEventListener {
 		}
 		// Ignore all the other eventTypes, but you should consider the other ones.
 	}
+	public void sendCommand(String command) {
+		
+		try {
+			command += "\n";
+			output.write(command.getBytes());
+		}
+		catch (IOException e) {
+			
+			System.out.println(e.getMessage());
+		}
+	}
 	private void processLine( String inputLine) {
 		
 		if ( inputLine.equals("READY") ) {
 			
 			System.out.println("Ready Detected");
-			try {
-				
-				output.write("up 20 20\n".getBytes());
-			}
-			catch (IOException e) {
-				
-				System.out.println(e.getMessage());
-			}
+
+			sendCommand("up 20 20");
 		}
 		else if ( inputLine.equals("END") ) {
 			
@@ -124,7 +133,11 @@ public class SerialTest implements SerialPortEventListener {
 
 		else if ( inputLine.startsWith("STATUS:") ) {
 			
-			System.out.println("Status Detected");
+			String[] parts = inputLine.split(":");
+			
+			String statusLine = parts[1];
+			
+			wallFollowing.setStatus( statusLine );
 //			try {
 //				
 //				//output.writeLine("speed 0 0");

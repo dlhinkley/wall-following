@@ -2,7 +2,9 @@
 all: build load
 
 build:
-	javac -classpath /usr/share/java/RXTXcomm.jar SerialTest.java
+	javac Status.java
+	javac -classpath . WallFollowing.java
+	javac -classpath .:/usr/share/java/RXTXcomm.jar SerialTest.java
 
 run:
 

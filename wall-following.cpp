@@ -40,15 +40,16 @@ const int TARGET_WALL_DIST = 4;
 static volatile int ahead = 0,
 		left = 0,
 		right = 0,
-		isRunning = 1,
-		isWallFollowing = 0,
-		scanCogInit = 0;
+		isRunning = 1;
 
-int initialized = 0,
-		speedLeft = 0,
-		speedRight = 0;
+unsigned int scanStackA[40 + 20]; // If things get weird make this number bigger!
+//unsigned int scanStackL[40 + 20]; // If things get weird make this number bigger!
+//unsigned int scanStackR[40 + 20]; // If things get weird make this number bigger!
 
-unsigned int sstack[40 + 20]; // If things get weird make this number bigger!
+int
+	isWallFollowing = 0,
+	speedLeft = 0,
+	speedRight = 0;
 
 
 /**
@@ -57,7 +58,7 @@ unsigned int sstack[40 + 20]; // If things get weird make this number bigger!
  */
 int getPing(int port) {
 
-	int qty = 5;
+	int qty = 3;
 	int sum = 0;     // stores sum of elements
 
 	for ( int i = 0; i < qty; i++ ) {
@@ -69,26 +70,31 @@ int getPing(int port) {
 
 	return mean;
 }
+//void scanCogL(void *par) {
+//
+//	while( isRunning ) {
+//
+//		left = getPing(PINGL);
+//	}
+//}
+//void scanCogR(void *par) {
+//
+//	while( isRunning ) {
+//
+//		right = getPing(PINGR);
+//	}
+//}
 
-
-/*
- * Runs in cog
- */
-void scanCog(void *par) {
-
-	//dprint(term,"scanCogR Start\n");
+void scanCogA(void *par) {
 
 	while( isRunning ) {
 
 		right = getPing(PINGR);
-
-		left = getPing(PINGL);
-
 		ahead = getPing(PINGA);
-		scanCogInit = 1; // scan Cog initilized
+		left = getPing(PINGL);
 	}
-	// dprint(term,"scanCogR End\n");
 }
+
 
 /**
  * Given an array with the current command and a numeric value argument to the command,
@@ -102,18 +108,18 @@ void executeCommand(char cmdbuf[], int  val, int val2) {
 		drive_setMaxSpeed(val);
 	}
 	else if ( strcmp(cmdbuf,"up") == 0 ) {
-		drive_goto(val,val);
+		drive_speed(val,val);
 	}
 	else if ( strcmp(cmdbuf,"down") == 0 ) {
-		drive_goto(-val,-val);
+		drive_speed(-val,-val);
 	}
 	else if ( strcmp(cmdbuf,"left") == 0  ) {
 		int steps = val * 0.284; // convert angle into degree
-		drive_goto(-steps,steps);
+		drive_speed(-steps,steps);
 	}
 	else if ( strcmp(cmdbuf,"right") == 0  ) {
 		int steps = val * 0.284; // convert angle into degree
-		drive_goto(steps,-steps);
+		drive_speed(steps,-steps);
 	}
 	else if ( strcmp(cmdbuf,"slow") == 0 ) {
 		drive_rampStep(0, 0);        // Slow
@@ -179,23 +185,45 @@ void pollSerial() {
 }
 class Location {
 	int ticksLeft, ticksRight, ticksLeftOld, ticksRightOld;
-	double trackWidth, distancePerCount;
+	double heading, trackWidth, distancePerCount, x, y;
+	double degHeading, coordFactor;
+
 public:
-	double heading, x, y, degHeading;
 	Location();
 	void update();
+	int getX();
+	int getY();
+	int getHeading();
 
 };
 Location::Location() {
 	heading = 0.0;
 	x = 0.0;
 	y = 0.0;
+	coordFactor = 70.0;
+	degHeading = 0.0;
+	trackWidth = 0.1058; // http://learn.parallax.com/activitybot/calculating-angles-rotation
+	distancePerCount = 0.00325;
+}
+int Location::getX() {
+
+	return (int) (x * coordFactor);
+}
+int Location::getHeading() {
+
+	return (int) degHeading;
+}
+int Location::getY() {
+
+	return (int) (y * coordFactor);
 }
 /*
  * Calculates the coordinates and heading of the robot based on the ticks from the servos
  */
 
 void Location::update() {
+
+	//dprint(term, "DEBUG:update start\n");
 
   double pi =  3.14159265359;
 
@@ -229,73 +257,65 @@ void Location::update() {
    degHeading = heading * (180 / pi);
   if (degHeading < 0) degHeading += 360;
 
+
+	///dprint(term, "DEBUG:update end\n");
+
 }
 
 
 int main(){
 
-
-
+	Location location;
 //	freqout(5, 2000, 2000);               // Start beep - low battery reset alarm
 
 	simpleterm_close();                         // Close default same-cog terminal
 	term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
+	int scanCogPtrA    = cogstart(&scanCogA, NULL, scanStackA, sizeof(scanStackA));
+//	int scanCogPtrL    = cogstart(&scanCogL, NULL, scanStackL, sizeof(scanStackL));
+//	int scanCogPtrR    = cogstart(&scanCogR, NULL, scanStackR, sizeof(scanStackR));
 
-	// Max drive_goto speed
-	//drive_setMaxSpeed( speed );
+	while (left == 0 || right == 0 || ahead == 0 ) {
 
-
-	// Start the ping cog
-	int scanCogPtr    = cogstart(&scanCog, NULL, sstack, sizeof(sstack));
-
-	//int keyboardCogPtr = cogstart(&keyboardCog, NULL, kstack, sizeof(kstack));
+		pause (125); // wait for scanners initialized
+	}
 
 	dprint(term,"DEBUG:main Start\n");
 
-	while ( scanCogInit == 0  ) {
-
-		// Wait for cogs to initialize
-		pause(500);
-		dprint(term,"DEBUG:main Waiting for Cog initialization\n");
-	}
-	if ( initialized == 0 ) {
-
-		initialized = 1;
-		dprint(term,"READY\n");
-	}
-	//dprint(term,"DEBUG:All Cogs initialized\n");
+	dprint(term,"READY\n");
 
 	drive_setRampStep(10);                      // 10 ticks/sec / 20 ms
 
-	//drive_ramp(128, 128);                       // Forward 2 RPS
-
-	int correction = 0;
-
-	//findWall();
-
-	//dprint(term,"DEBUG:main follow wall start\n");
-
-
 	// Keep running
 	while( isRunning ) {
-		//dprint(term,"scanCog left=%d ahead=%d right=%d\n", left, ahead, right);
+
 
 
 		pollSerial();
 
-		dprint(term, "STATUS:right=%d\tahead=%d\tleft=%d\tspeedLeft=%d\tspeedRight=%d\n",
-				      right,   ahead,   left,   speedLeft,   speedRight);
+		location.update();
 
-		pause(500);
+		dprint(term, "STATUS:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				      right,   ahead,   left,   speedLeft,   speedRight, location.getX(), location.getY(), location.getHeading());
+
+		// Stop if you've run into something
+		if ( left <= 5 || right <= 5 || ahead <= 5 ) {
+
+			dprint(term,"DEBUG:WALL!!!!\n");
+			drive_goto(0,0);
+			freqout(5, 2000, 2000);
+			dprint(term, "DEBUG:right=%d\tahead=%d\tleft=%d\n",
+					      right,   ahead,   left);
+		}
+
+		pause(250);
 	}
 	dprint(term,"END\n");
-	dprint(term,"DEBUG:main follow wall stop\n");
+	cogstop( scanCogPtrA );
+//	cogstop( scanCogPtrL );
+//	cogstop( scanCogPtrR );
 
 	servo_stop();                               // Stop servo process
 	drive_goto(0,0);
-	cogstop( scanCogPtr );
-	//cogstop( keyboardCogPtr );
 
-	dprint(term,"DEBUG:main End\n");
 	return 0;
 } 

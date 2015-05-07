@@ -1,7 +1,15 @@
+package com.duanehinkley;
 
-class WallFollowing {
+
+public class WallFollowing {
 	
-	
+	private Status status = new Status();
+
+
+	public void setStatus(String statusLine ) {
+		
+		status.setStatus(statusLine);
+	}
 	void follow() {
 		
 		Condition leftCond;
