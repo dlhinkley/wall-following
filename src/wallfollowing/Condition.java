@@ -1,3 +1,4 @@
+package wallfollowing;
 
 class Condition {
 

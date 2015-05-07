@@ -1,4 +1,4 @@
-package com.duanehinkley;
+package wallfollowing;
 
 
 import java.io.BufferedReader;

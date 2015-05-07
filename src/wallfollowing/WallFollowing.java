@@ -1,4 +1,4 @@
-package com.duanehinkley;
+package wallfollowing;
 
 
 public class WallFollowing {

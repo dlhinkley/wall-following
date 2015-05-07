@@ -1,3 +1,4 @@
+package wallfollowing;
 
 class Action {
 	int prevSpeedRight;
