@@ -64,7 +64,7 @@ class Action {
     void driveGoto(int left, int right) {
 
 	//if ( left != prevSpeedLeft || right != prevSpeedRight ) {
-//TODO  drive_goto(left, right);
+        Robot.drive_goto(left, right);
 	//	prevSpeedLeft = left;
         //	prevSpeedRight = right;
 
@@ -77,7 +77,7 @@ class Action {
 
         if (left != this.prevSpeedLeft || right != this.prevSpeedRight) {
 
-//TODO            drive_speed(left, right);
+            Robot.drive_speed(left, right);
             this.prevSpeedLeft = left;
             this.prevSpeedRight = right;
 
@@ -123,7 +123,7 @@ class Action {
     void turnRightCorner() {
 
         // Go straight until past corner
-        int dist = (int) (0.325 * (WallFollowing.TARGET_WALL_DIST + 50));
+        int dist = (int) (0.325 * (Condition.TARGET_WALL_DIST + 50));
 
         driveGoto(dist, dist);
 
@@ -143,7 +143,7 @@ class Action {
 	// correct based on dynamic adjustment right or left of right
         // 15 - 14 = 1 too close so left should go faster
         // 15 - 16 = -1 too far so left should go slower
-        int adj = (WallFollowing.TARGET_WALL_DIST - this.left);
+        int adj = (Condition.TARGET_WALL_DIST - this.left);
 
         driveSpeed(this.speed + adj, this.speed);
     }
@@ -164,7 +164,7 @@ class Action {
 //	}
 //	else {
 //	}
-        int adj = (WallFollowing.TARGET_WALL_DIST - this.right) * 2;
+        int adj = (Condition.TARGET_WALL_DIST - this.right) * 2;
         driveSpeed(this.speed - adj, this.speed + adj);
 
         this.prevCmd = ActionCommands.RIGHT_JUST_RIGHT;
@@ -180,7 +180,7 @@ class Action {
 //
 //		driveGoto(-this.correct, this.correct); // 10 degrees
 //	}
-        int adj = (WallFollowing.TARGET_WALL_DIST - this.right);
+        int adj = (Condition.TARGET_WALL_DIST - this.right);
         driveSpeed(this.speed - adj, this.speed);
 
         this.prevCmd = ActionCommands.RIGHT_WAY_CLOSE;
@@ -188,7 +188,7 @@ class Action {
 
     void rightWayFar() {
 
-        int adj = (WallFollowing.TARGET_WALL_DIST - this.right) * 3;
+        int adj = (Condition.TARGET_WALL_DIST - this.right) * 3;
         driveSpeed(this.speed - adj, this.speed + adj);
 
 //	if ( this.prevCmd == this.RIGHT_WAY_FAR ) {

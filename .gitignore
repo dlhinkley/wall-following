@@ -1,2 +1,5 @@
 cmm
 *.class
+/dist/build/
+build/
+

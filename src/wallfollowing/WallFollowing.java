@@ -4,7 +4,7 @@ package wallfollowing;
 public class WallFollowing {
 	
 	private Status status = new Status();
-        public static final int TARGET_WALL_DIST = 4;
+
 
 
 	public void setStatus(String statusLine ) {

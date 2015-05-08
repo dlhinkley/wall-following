@@ -12,7 +12,9 @@ package wallfollowing;
 public class Main {
     
 	public static void main(String[] args) throws Exception {
-		SerialTest main = new SerialTest();
+            
+            
+		SerialComm main = new SerialComm();
 		main.initialize();
 		Thread t=new Thread() {
 			public void run() {
