@@ -4,6 +4,7 @@ package wallfollowing;
 public class WallFollowing {
 	
 	private Status status = new Status();
+        public static final int TARGET_WALL_DIST = 4;
 
 
 	public void setStatus(String statusLine ) {
@@ -12,13 +13,13 @@ public class WallFollowing {
 	}
 	void follow() {
 		
-		Condition leftCond;
-		Condition aheadCond;
-		Condition rightCond;
-		Action action;
-		leftCond.setCondition( left );
-		aheadCond.setCondition( ahead );
-		rightCond.setCondition( right );
+		Condition leftCond = new Condition();
+		Condition aheadCond = new Condition();
+		Condition rightCond = new Condition();
+		Action action = new Action();
+		leftCond.setCondition( status.left );
+		aheadCond.setCondition( status.ahead );
+		rightCond.setCondition( status.right );
 		action.setDistances(leftCond.distance, aheadCond.distance, rightCond.distance);
 
 /*
@@ -88,9 +89,9 @@ public class WallFollowing {
 */
 //			 if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
 //
-				if ( rightCond.condition == Condition::WAY_TOO_CLOSE ) action.rightWayClose();
-				if ( rightCond.condition == Condition::JUST_RIGHT    ) action.rightJustRight();
-				if ( rightCond.condition == Condition::WAY_TOO_FAR   ) action.rightWayFar(  );
+				if ( rightCond.condition == CondValue.WAY_TOO_CLOSE ) action.rightWayClose();
+				if ( rightCond.condition == CondValue.JUST_RIGHT    ) action.rightJustRight();
+				if ( rightCond.condition == CondValue.WAY_TOO_FAR   ) action.rightWayFar(  );
 //			}
 
 //		}
@@ -99,7 +100,7 @@ public class WallFollowing {
 //		dprint(term, "x=%f y=%f heading=%f right=%d ahead=%d left=%d rightCond=%d aheadCond=%d leftCond=%d prevWallOnRight=%d wallOnRight=%d speedLeft=%d speedRight=%d\n",
 //				      action.loc.x, action.loc.y, action.loc.heading, right,   ahead,   left,   (int)rightCond.condition,   (int)aheadCond.condition,   (int)leftCond.condition,   action.prevWallOnRight,   action.wallOnRight,   action.speedLeft,   action.speedRight);
 
-		pause(250);
+		//TODO pause(250);
 
 	//printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
 
