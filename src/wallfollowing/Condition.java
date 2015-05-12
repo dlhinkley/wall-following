@@ -2,7 +2,7 @@ package wallfollowing;
 
 class Condition {
 
-    public CondValue condition;
+    public CondValue condition = null;
     public static final int TARGET_WALL_DIST = 4;
     public static final int JUST_RIGHT_DIST = 4;
     public static final int JUST_RIGHT_MAX_DIST = 6;
@@ -11,7 +11,6 @@ class Condition {
     int distance;
 
     Condition() {
-        this.condition = CondValue.NONE;
     }
 
     void setCondition(int distance) {

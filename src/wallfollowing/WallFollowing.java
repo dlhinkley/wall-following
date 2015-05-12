@@ -3,23 +3,25 @@ package wallfollowing;
 
 public class WallFollowing {
 	
-	private Status status = new Status();
+	Status status = new Status();
+	private Condition leftCond = new Condition();
+	private Condition aheadCond = new Condition();
+	private Condition rightCond = new Condition();
+ 	Action action = new Action();
 
 
-
+        
 	public void setStatus(String statusLine ) {
 		
 		status.setStatus(statusLine);
 	}
 	void follow() {
 		
-		Condition leftCond = new Condition();
-		Condition aheadCond = new Condition();
-		Condition rightCond = new Condition();
-		Action action = new Action();
+               
 		leftCond.setCondition( status.left );
 		aheadCond.setCondition( status.ahead );
 		rightCond.setCondition( status.right );
+                
 		action.setDistances(leftCond.distance, aheadCond.distance, rightCond.distance);
 
 /*
@@ -89,9 +91,8 @@ public class WallFollowing {
 */
 //			 if ( aheadCond.condition == Condition::WAY_TOO_FAR ) {
 //
-				if ( rightCond.condition == CondValue.WAY_TOO_CLOSE ) action.rightWayClose();
 				if ( rightCond.condition == CondValue.JUST_RIGHT    ) action.rightJustRight();
-				if ( rightCond.condition == CondValue.WAY_TOO_FAR   ) action.rightWayFar(  );
+				if ( rightCond.condition == CondValue.WAY_TOO_FAR   ) action.rightWayFar( );
 //			}
 
 //		}
@@ -105,5 +106,27 @@ public class WallFollowing {
 	//printf("Angle=%d Distance=%d\n", scanAngle[scanPtr], scanPing[scanPtr]);
 
 	}
-	
-}
+
+	public static void main(String[] args) throws Exception {
+            
+                WallFollowing wallFollowing = new WallFollowing();
+                
+		SerialComm serial = new SerialComm(wallFollowing);
+		serial.initialize();
+		Thread t=new Thread() {
+			public void run() {
+				//the following line will keep this app alive for 1000 seconds,
+				//waiting for events to occur and responding to them (printing incoming messages to console).
+				try {Thread.sleep(1000000);} catch (InterruptedException ie) {}
+			}
+		};
+		t.start();
+                
+                while (true ) {
+                    
+                    wallFollowing.follow();
+                    Thread.sleep(4000);
+
+                }
+	}
+}	

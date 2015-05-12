@@ -3,8 +3,10 @@ package wallfollowing;
 public class Status {
 	
 	public int right;
+	public int right45;
 	public int ahead;
 	public int left;
+	public int left45;
 	public int speedLeft;
 	public int speedRight;
 	public int x;
@@ -17,17 +19,19 @@ public class Status {
 		
 		System.out.println("Status.setStatus statusLine=" + statusLine);
 
-		String[] statusList = statusLine.split("\t");
+		String[] statusList = statusLine.trim().split("\t");
 		
-		
-		this.right = Integer.parseInt( statusList[0] );
-		this.ahead = Integer.parseInt( statusList[1] );
-		this.left = Integer.parseInt( statusList[2] );
-		this.speedLeft = Integer.parseInt( statusList[3] );
-		this.speedRight = Integer.parseInt( statusList[4] );
-		this.x = Integer.parseInt( statusList[5] );
-		this.y = Integer.parseInt( statusList[6] );
-		this.heading = Integer.parseInt( statusList[7] );
+		int pos = 0;
+		this.right = Integer.parseInt( statusList[pos++] );
+		this.right45 = Integer.parseInt( statusList[pos++] );
+		this.ahead = Integer.parseInt( statusList[pos++] );
+		this.left45 = Integer.parseInt( statusList[pos++] );
+		this.left = Integer.parseInt( statusList[pos++] );
+		this.speedLeft = Integer.parseInt( statusList[pos++] );
+		this.speedRight = Integer.parseInt( statusList[pos++] );
+		this.x = Integer.parseInt( statusList[pos++] );
+		this.y = Integer.parseInt( statusList[pos++] );
+		this.heading = Integer.parseInt( statusList[pos++] );
 		
 		System.out.println("Status.setStatus right=" + right);
 		System.out.println("Status.setStatus heading=" + heading);

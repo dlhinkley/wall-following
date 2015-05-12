@@ -32,7 +32,11 @@ public class SerialComm implements SerialPortEventListener {
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 115200;
-	private WallFollowing wallFollowing = new WallFollowing();
+        private WallFollowing wallFollowing;
+
+        SerialComm(WallFollowing wallFollowing) {
+            this.wallFollowing = wallFollowing;
+        }
 
 
 	public void initialize() {

@@ -9,5 +9,5 @@ package wallfollowing;
  *
  * @author dlhinkley
  */
- public enum CondValue { WAY_TOO_CLOSE , JUST_RIGHT, WAY_TOO_FAR, NONE };
+ public enum CondValue { JUST_RIGHT, WAY_TOO_FAR };
 

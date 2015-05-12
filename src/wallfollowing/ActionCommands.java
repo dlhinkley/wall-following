@@ -5,5 +5,5 @@
  */
 package wallfollowing;
 
-enum ActionCommands { RIGHT_WAY_CLOSE, RIGHT_JUST_RIGHT, RIGHT_WAY_FAR, INIT };
+enum ActionCommands {  RIGHT_JUST_RIGHT, RIGHT_WAY_FAR };
 
