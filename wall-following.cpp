@@ -31,15 +31,20 @@ OK
 terminal *term;                               // For full duplex serial terminal
 
 
-int PINGA = 0,
-		PINGL = 16,
-		PINGR = 17;
+int PINGA = 16, //GOOD
+	PINGL = 9, //GOOD
+	PINGL45 = 10, //GOOG
+	PINGR = 11, //GOOD
+	PINGR45 = 8, // MAKES WHEEL GO
+	TURRET = 17; //GOOD
 
 const int TARGET_WALL_DIST = 4;
 
 static volatile int ahead = 0,
 		left = 0,
+		left45 = 0,
 		right = 0,
+		right45 = 0,
 		isRunning = 1;
 
 unsigned int scanStackA[40 + 20]; // If things get weird make this number bigger!
@@ -70,20 +75,6 @@ int getPing(int port) {
 
 	return mean;
 }
-//void scanCogL(void *par) {
-//
-//	while( isRunning ) {
-//
-//		left = getPing(PINGL);
-//	}
-//}
-//void scanCogR(void *par) {
-//
-//	while( isRunning ) {
-//
-//		right = getPing(PINGR);
-//	}
-//}
 
 void scanCogA(void *par) {
 
@@ -92,6 +83,8 @@ void scanCogA(void *par) {
 		right = getPing(PINGR);
 		ahead = getPing(PINGA);
 		left = getPing(PINGL);
+		left45 = getPing(PINGL45); 
+		right45 = getPing(PINGR45); 
 	}
 }
 
@@ -274,12 +267,13 @@ int main(){
 //	int scanCogPtrL    = cogstart(&scanCogL, NULL, scanStackL, sizeof(scanStackL));
 //	int scanCogPtrR    = cogstart(&scanCogR, NULL, scanStackR, sizeof(scanStackR));
 
-	while (left == 0 || right == 0 || ahead == 0 ) {
+	while (left == 0 || right45 == 0 || left45 == 0 || right == 0 || ahead == 0 ) {
 
 		pause (125); // wait for scanners initialized
 	}
 
 	dprint(term,"DEBUG:main Start\n");
+	servo_angle(TURRET, 950);
 
 	dprint(term,"READY\n");
 
@@ -294,8 +288,8 @@ int main(){
 
 		location.update();
 
-		dprint(term, "STATUS:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
-				      right,   ahead,   left,   speedLeft,   speedRight, location.getX(), location.getY(), location.getHeading());
+		dprint(term, "STATUS:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				      right, right45,  ahead, left45,  left,   speedLeft,   speedRight, location.getX(), location.getY(), location.getHeading());
 
 		// Stop if you've run into something
 		if ( left <= 5 || right <= 5 || ahead <= 5 ) {
