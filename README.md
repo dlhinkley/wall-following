@@ -1,4 +1,4 @@
 
 
 cd dist/
-java -cp .:lib/ -jar WallFollowing.jar Main
+java -Djava.library.path=/usr/lib/jni -jar "WallFollowing.jar"
