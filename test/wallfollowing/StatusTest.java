@@ -48,19 +48,18 @@ public class StatusTest {
         String statusLine = String.format( "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
 				      right,  right45, ahead, left45,  left,   speedLeft,   speedRight, x, y, heading);
 
-        Status status = new Status();
-        status.setStatus(statusLine);
+        Status.setStatus(statusLine);
         
-        assertEquals(status.right, right );
-        assertEquals(status.right45, right45 );
-        assertEquals(status.ahead, ahead );
-        assertEquals(status.left45, left45 );
-        assertEquals(status.left, left );
-        assertEquals(status.speedLeft, speedLeft );
-        assertEquals(status.speedRight, speedRight );
-        assertEquals(status.x, x );
-        assertEquals(status.y, y );
-        assertEquals(status.heading, heading );
+        assertEquals( (int)Status.right, right );
+        assertEquals( (int)Status.right45, right45 );
+        assertEquals( (int)Status.ahead, ahead );
+        assertEquals( (int)Status.left45, left45 );
+        assertEquals( (int)Status.left, left );
+        assertEquals( (int)Status.speedLeft, speedLeft );
+        assertEquals( (int)Status.speedRight, speedRight );
+        assertEquals( (int)Status.x, x );
+        assertEquals( (int)Status.y, y );
+        assertEquals( (int)Status.heading, heading );
         
     }
     /**
@@ -77,8 +76,7 @@ public class StatusTest {
         boolean isException = false;
         
         try {
-        Status status = new Status();
-        status.setStatus(statusLine);
+        Status.setStatus(statusLine);
         
         }
         catch (NumberFormatException e ) {

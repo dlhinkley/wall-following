@@ -3,24 +3,18 @@ package wallfollowing;
 
 public class WallFollowing {
 	
-	Status status = new Status();
 	private Condition leftCond = new Condition();
 	private Condition aheadCond = new Condition();
 	private Condition rightCond = new Condition();
  	Action action = new Action();
 
-
         
-	public void setStatus(String statusLine ) {
-		
-		status.setStatus(statusLine);
-	}
 	void follow() {
 		
                
-		leftCond.setCondition( status.left );
-		aheadCond.setCondition( status.ahead );
-		rightCond.setCondition( status.right );
+		leftCond.setCondition( Status.left );
+		aheadCond.setCondition( Status.ahead );
+		rightCond.setCondition( Status.right );
                 
 		action.setDistances(leftCond.distance, aheadCond.distance, rightCond.distance);
 
@@ -107,26 +101,4 @@ public class WallFollowing {
 
 	}
 
-	public static void main(String[] args) throws Exception {
-            
-                WallFollowing wallFollowing = new WallFollowing();
-                
-		SerialComm serial = new SerialComm(wallFollowing);
-		serial.initialize();
-		Thread t=new Thread() {
-			public void run() {
-				//the following line will keep this app alive for 1000 seconds,
-				//waiting for events to occur and responding to them (printing incoming messages to console).
-				try {Thread.sleep(1000000);} catch (InterruptedException ie) {}
-			}
-		};
-		t.start();
-                
-                while (true ) {
-                    
-                    wallFollowing.follow();
-                    Thread.sleep(4000);
-
-                }
-	}
 }	

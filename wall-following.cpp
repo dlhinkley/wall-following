@@ -41,20 +41,21 @@ int PINGA = 16, //GOOD
 const int TARGET_WALL_DIST = 4;
 
 static volatile int ahead = 0,
+                aheadIr = 0,
 		left = 0,
 		left45 = 0,
 		right = 0,
 		right45 = 0,
+                turret = 0,
 		isRunning = 1;
 
 unsigned int scanStackA[40 + 20]; // If things get weird make this number bigger!
 //unsigned int scanStackL[40 + 20]; // If things get weird make this number bigger!
 //unsigned int scanStackR[40 + 20]; // If things get weird make this number bigger!
 
-int
-	isWallFollowing = 0,
-	speedLeft = 0,
-	speedRight = 0;
+int isWallFollowing = 0,
+    speedLeft = 0,
+    speedRight = 0;
 
 
 /**
@@ -93,87 +94,78 @@ void scanCogA(void *par) {
  * Given an array with the current command and a numeric value argument to the command,
  * execute the command
  */
-void executeCommand(char cmdbuf[], int  val, int val2) {
+void executeCommand(char args[][]) {
 
-	dprint(term,"DEBUG:executeCommand cmdbuf=%s val1=%d val2=%d\n",cmdbuf, val, val2);
+	dprint(term,"DEBUG:executeCommand cmdbuf=%s\n",args[0]);
 
-	if ( strcmp(cmdbuf,"speed") == 0 ) {
-		drive_setMaxSpeed(val);
+	if ( strcmp(args[0],"speed") == 0 ) {
+		drive_setMaxSpeed(arg[0]);
 	}
-	else if ( strcmp(cmdbuf,"up") == 0 ) {
-		drive_speed(val,val);
+        // drive_speed right left
+	else if ( strcmp(args[0],"drive_speed") == 0 ) {
+		drive_speed( atoi(arg[1]), atoi(arg[2]) );
 	}
-	else if ( strcmp(cmdbuf,"down") == 0 ) {
-		drive_speed(-val,-val);
+        // drive_goto right left
+	else if ( strcmp(args[0],"drive_goto") == 0 ) {
+		drive_speed( atoi(arg[1]), atoi(arg[2]) );
 	}
-	else if ( strcmp(cmdbuf,"left") == 0  ) {
+	else if ( strcmp(args[0],"left") == 0  ) {
+                int val = atoi(arg[1]);
 		int steps = val * 0.284; // convert angle into degree
-		drive_speed(-steps,steps);
+		drive_speed(steps, -steps);
 	}
-	else if ( strcmp(cmdbuf,"right") == 0  ) {
+	else if ( strcmp(args[0],"right") == 0  ) {
+                int val = atoi(arg[1]);
 		int steps = val * 0.284; // convert angle into degree
-		drive_speed(steps,-steps);
+		drive_speed(steps, -steps);
 	}
-	else if ( strcmp(cmdbuf,"slow") == 0 ) {
+	else if ( strcmp(args[0],"slow") == 0 ) {
 		drive_rampStep(0, 0);        // Slow
 	}
-	else if ( strcmp(cmdbuf,"stop") == 0  ) {
+	else if ( strcmp(args[0],"stop") == 0  ) {
 		drive_ramp(0, 0);        // Stop
 	}
 }
-
 /*
  * Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes
  */
 void pollSerial() {
 
-	char c = 0;                                   // Stores character input
+    char c = 0; // Stores character input
 
-	if (fdserial_rxReady(term) != 0) { // Non blocking check for data in the input buffer
+    if (fdserial_rxReady(term) != 0) { // Non blocking check for data in the input buffer
 
-		char sbuf[40]; // A Buffer long enough to hold the longest line  may send.
-		int count = 0;
-		while (count < 40) {
-			sbuf[count] = readChar(term);
-			if (sbuf[count] == '\r' || sbuf[count] == '\n') // Read until return
-				break;
-			count++;
-		}
+        char args[3][20]; // Command buffer
+        args[0][0] = 0;
+        args[1][0] = 0;
+        args[2][0] = 0;
 
-		char cmdbuf[20];                             // Command buffer
-		char valbuf1[4];                              // Text value buffer
-		char valbuf2[4];                              // Text value buffer
-		int  val1, val2;
-		int i = 0;                                 // Declare index variable
-		// Parse command
-		while(!isalpha(sbuf[i])) i++;             // Find 1st command char
+        int count = 0;
+        int argCnt = 0;
+        int posPtr = 0;
+        while (count < 40) {
+            char c = cmd[count];
 
-		sscan(&sbuf[i], "%s", cmdbuf);            // Command -> buffer
+            if (c == '\r' || c == '\n') { // Read until return
+                args[ argCnt ][ posPtr++ ] = 0;
+                break;
+            }                // Each space is a new argument
+            else if (c == ' ') {
 
-		i += strlen(cmdbuf);                     // Idx up by command char count
+                args[ argCnt ][ posPtr++ ] = 0;
 
-		// Parse distance argument
-		while(!isdigit(sbuf[i])) i++;             // Find 1st digit after command
+                argCnt++;
+                posPtr = 0; // Beginning of array
 
-		sscan(&sbuf[i], "%s", valbuf1);            // Value -> buffer
+            } else {
 
-		i += strlen(valbuf1);                     // Idx up by value char count
+                args[ argCnt ][ posPtr++ ] = c;
+            }
+            count++;
+        }
 
-		val1 = atoi(valbuf1);                      // Convert string to value
-
-
-		// Parse distance argument
-		while(!isdigit(sbuf[i])) i++;             // Find 1st digit after command
-
-		sscan(&sbuf[i], "%s", valbuf2);            // Value -> buffer
-
-		i += strlen(valbuf2);                     // Idx up by value char count
-
-		val2 = atoi(valbuf2);                      // Convert string to value
-
-
-		executeCommand(cmdbuf, val1, val2);
-	}
+        executeCommand(args);
+    }
 
 }
 class Location {
@@ -288,11 +280,11 @@ int main(){
 
 		location.update();
 
-		dprint(term, "STATUS:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
-				      right, right45,  ahead, left45,  left,   speedLeft,   speedRight, location.getX(), location.getY(), location.getHeading());
+		dprint(term, "STATUS:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				      right, right45,  ahead, aheadIr, left45,  left,   speedLeft,   speedRight, location.getX(), location.getY(), location.getHeading(), turret);
 
 		// Stop if you've run into something
-		if ( left <= 5 || right <= 5 || ahead <= 5 ) {
+		if ( left <= 5 || right <= 5 || left45 <= 5 || right45 <= 5 || ahead <= 5 || aheadIr <= 5 ) {
 
 			dprint(term,"DEBUG:WALL!!!!\n");
 			drive_goto(0,0);

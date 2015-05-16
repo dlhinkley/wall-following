@@ -12,6 +12,7 @@ import gnu.io.SerialPortEventListener;
 import java.util.Enumeration;
 
 public class SerialComm implements SerialPortEventListener {
+         static SerialComm serial;
 	SerialPort serialPort;
         /** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
@@ -32,11 +33,8 @@ public class SerialComm implements SerialPortEventListener {
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 115200;
-        private WallFollowing wallFollowing;
 
-        SerialComm(WallFollowing wallFollowing) {
-            this.wallFollowing = wallFollowing;
-        }
+
 
 
 	public void initialize() {
@@ -111,7 +109,7 @@ public class SerialComm implements SerialPortEventListener {
 		}
 		// Ignore all the other eventTypes, but you should consider the other ones.
 	}
-	public void sendCommand(String command) {
+	public synchronized void sendCommand(String command) {
 		
 		try {
 			command += "\n";
@@ -141,7 +139,7 @@ public class SerialComm implements SerialPortEventListener {
 			
 			String statusLine = parts[1];
 			
-			wallFollowing.setStatus( statusLine );
+			Status.setStatus( statusLine );
 //			try {
 //				
 //				//output.writeLine("speed 0 0");
@@ -155,5 +153,18 @@ public class SerialComm implements SerialPortEventListener {
 	
 		
 	}
-
+        static void startSerial() {
+            	
+                serial = new SerialComm();
+		serial.initialize();
+		Thread t=new Thread() {
+			public void run() {
+				//the following line will keep this app alive for 1000 seconds,
+				//waiting for events to occur and responding to them (printing incoming messages to console).
+				try {Thread.sleep(1000000);} catch (InterruptedException ie) {}
+			}
+		};
+		t.start();
+            
+        }
 }
