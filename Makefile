@@ -13,3 +13,6 @@ eprom:
 
 term:
 	minicom -b 115200 -o -D /dev/ttyUSB0 
+
+copy:
+	scp dist/WallFollowing.jar pi@10.0.0.27:~/SimpleIDE/wall-following/dist/

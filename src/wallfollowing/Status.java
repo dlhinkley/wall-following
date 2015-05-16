@@ -1,5 +1,7 @@
 package wallfollowing;
 
+import java.util.Arrays;
+
 public class Status {
 	
 	public static Integer right;
@@ -19,11 +21,13 @@ public class Status {
 		 
 
 		
-		System.out.println("Status.setStatus statusLine=" + statusLine);
+		System.out.println("Status.setStatus start statusLine=" + statusLine);
 
 		String[] statusList = statusLine.trim().split("\t");
 		
-		Integer pos = 0;
+		System.out.println("Status.setStatus statusList=" + Arrays.asList(statusList));
+
+                Integer pos = 0;
 		Status.right = Integer.parseInt( statusList[pos++] );
 		Status.right45 = Integer.parseInt( statusList[pos++] );
 		Status.ahead = Integer.parseInt( statusList[pos++] );
@@ -37,11 +41,13 @@ public class Status {
 		Status.heading = Integer.parseInt( statusList[pos++] );
 		Status.turret = Integer.parseInt( statusList[pos++] );
 		
+		System.out.println("Status.setStatus status=" + right);
 		System.out.println("Status.setStatus right=" + right);
 		System.out.println("Status.setStatus heading=" + heading);
                 
-                Main.gui.setStatus();
+                GUI.gui.setStatus();
 
+		System.out.println("Status.setStatus end");
 	}
 	
 }

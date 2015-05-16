@@ -81,4 +81,8 @@ public class Robot {
         drive_speed(speed, speed);
     }
 
+    static void stop() {
+        drive_speed(0, 0);
+    }
+
 }
