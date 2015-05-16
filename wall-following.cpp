@@ -94,28 +94,28 @@ void scanCogA(void *par) {
  * Given an array with the current command and a numeric value argument to the command,
  * execute the command
  */
-void executeCommand(char args[][]) {
+void executeCommand(char args[][20]) {
 
-	dprint(term,"DEBUG:executeCommand cmdbuf=%s\n",args[0]);
+	dprint(term,"DEBUG:executeCommand cmdbuf=%s arg1=%s arg2=%s\n",args[0], args[1], args[2]);
 
 	if ( strcmp(args[0],"speed") == 0 ) {
-		drive_setMaxSpeed(arg[0]);
+		drive_setMaxSpeed( atoi(args[0]));
 	}
         // drive_speed right left
 	else if ( strcmp(args[0],"drive_speed") == 0 ) {
-		drive_speed( atoi(arg[1]), atoi(arg[2]) );
+		drive_speed( atoi(args[1]), atoi(args[2]) );
 	}
         // drive_goto right left
 	else if ( strcmp(args[0],"drive_goto") == 0 ) {
-		drive_speed( atoi(arg[1]), atoi(arg[2]) );
+		drive_speed( atoi(args[1]), atoi(args[2]) );
 	}
 	else if ( strcmp(args[0],"left") == 0  ) {
-                int val = atoi(arg[1]);
+                int val = atoi(args[1]);
 		int steps = val * 0.284; // convert angle into degree
 		drive_speed(steps, -steps);
 	}
 	else if ( strcmp(args[0],"right") == 0  ) {
-                int val = atoi(arg[1]);
+                int val = atoi(args[1]);
 		int steps = val * 0.284; // convert angle into degree
 		drive_speed(steps, -steps);
 	}
@@ -144,7 +144,7 @@ void pollSerial() {
         int argCnt = 0;
         int posPtr = 0;
         while (count < 40) {
-            char c = cmd[count];
+            char c = readChar(term);
 
             if (c == '\r' || c == '\n') { // Read until return
                 args[ argCnt ][ posPtr++ ] = 0;
@@ -284,7 +284,7 @@ int main(){
 				      right, right45,  ahead, aheadIr, left45,  left,   speedLeft,   speedRight, location.getX(), location.getY(), location.getHeading(), turret);
 
 		// Stop if you've run into something
-		if ( left <= 5 || right <= 5 || left45 <= 5 || right45 <= 5 || ahead <= 5 || aheadIr <= 5 ) {
+		if ( left <= 5 || right <= 5 || left45 <= 5 || right45 <= 5 || ahead <= 5 ) {
 
 			dprint(term,"DEBUG:WALL!!!!\n");
 			drive_goto(0,0);
