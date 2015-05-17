@@ -4,18 +4,18 @@ import java.util.Arrays;
 
 public class Status {
 	
-	public static Integer right;
-	public static Integer right45;
-	public static Integer ahead;
-	public static Integer left;
-	public static Integer left45;
-	public static Integer speedLeft;
-	public static Integer speedRight;
-	public static Integer x;
-	public static Integer y;
-	public static Integer heading;
-        public static Integer aheadIr;
-        public static Integer turret;
+	public static Integer right = 0;
+	public static Integer right45 = 0;
+	public static Integer ahead = 0;
+	public static Integer left = 0;
+	public static Integer left45 = 0;
+	public static Integer speedLeft = 0;
+	public static Integer speedRight = 0;
+	public static Integer x = 0;
+	public static Integer y = 0;
+	public static Integer heading = 0;
+        public static Integer aheadIr = 0;
+        public static Integer turret = 0;
 	
 	public static void setStatus( String statusLine ) {
 		 

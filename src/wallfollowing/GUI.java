@@ -5,6 +5,9 @@
  */
 package wallfollowing;
 
+import java.awt.Color;
+import java.awt.Graphics;
+
 
 /**
  *
@@ -29,36 +32,56 @@ public class GUI extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel10 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
+        mapPanel = new MapJPanel();
+        directionsPanel = new javax.swing.JPanel();
+        headingValueLabel = new javax.swing.JLabel();
         upDirectionButton = new javax.swing.JButton();
-        backDirectionButton = new javax.swing.JButton();
-        rightDirectionButton = new javax.swing.JButton();
         leftDirectionButton = new javax.swing.JButton();
+        rightDirectionButton = new javax.swing.JButton();
+        backDirectionButton = new javax.swing.JButton();
+        upDirectionButton1 = new javax.swing.JButton();
+        turretPanel = new javax.swing.JPanel();
+        turretValueLabel = new javax.swing.JLabel();
         fwdTurretButton = new javax.swing.JButton();
         leftTurretButton = new javax.swing.JButton();
         rightTurretButton = new javax.swing.JButton();
-        directionLabel = new javax.swing.JLabel();
-        turretLabel = new javax.swing.JLabel();
+        radarPanel = new RadarJPanel();
+        coordinatesPanel = new javax.swing.JPanel();
         xLabel = new javax.swing.JLabel();
-        yLabel = new javax.swing.JLabel();
         xValueLabel = new javax.swing.JLabel();
+        yLabel = new javax.swing.JLabel();
         yValueLabel = new javax.swing.JLabel();
-        distanceLabel = new javax.swing.JLabel();
+        leftValueLabel = new javax.swing.JLabel();
+        left45ValueLabel = new javax.swing.JLabel();
         distanceSonarValueLabel = new javax.swing.JLabel();
         distanceIrValueLabel = new javax.swing.JLabel();
-        left45ValueLabel = new javax.swing.JLabel();
         right45ValueLabel = new javax.swing.JLabel();
-        leftValueLabel = new javax.swing.JLabel();
         rightValueLabel = new javax.swing.JLabel();
-        turretValueLabel = new javax.swing.JLabel();
-        headingValueLabel = new javax.swing.JLabel();
-        stopButton = new javax.swing.JButton();
 
         jLabel10.setText("jLabel10");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Control Center"));
+        mapPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Map"));
+        mapPanel.setSize(new java.awt.Dimension(200, 200));
+
+        javax.swing.GroupLayout mapPanelLayout = new javax.swing.GroupLayout(mapPanel);
+        mapPanel.setLayout(mapPanelLayout);
+        mapPanelLayout.setHorizontalGroup(
+            mapPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 318, Short.MAX_VALUE)
+        );
+        mapPanelLayout.setVerticalGroup(
+            mapPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        directionsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Directions"));
+        directionsPanel.setPreferredSize(new java.awt.Dimension(148, 140));
+        directionsPanel.setSize(new java.awt.Dimension(148, 140));
+
+        headingValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        headingValueLabel.setText("120");
 
         upDirectionButton.setText("Up");
         upDirectionButton.addActionListener(new java.awt.event.ActionListener() {
@@ -67,10 +90,10 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        backDirectionButton.setText("Dn");
-        backDirectionButton.addActionListener(new java.awt.event.ActionListener() {
+        leftDirectionButton.setText("<-");
+        leftDirectionButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                backDirectionButtonActionPerformed(evt);
+                leftDirectionButtonActionPerformed(evt);
             }
         });
 
@@ -81,12 +104,66 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        leftDirectionButton.setText("<-");
-        leftDirectionButton.addActionListener(new java.awt.event.ActionListener() {
+        backDirectionButton.setText("Dn");
+        backDirectionButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                leftDirectionButtonActionPerformed(evt);
+                backDirectionButtonActionPerformed(evt);
             }
         });
+
+        upDirectionButton1.setText("Stop");
+        upDirectionButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                upDirectionButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout directionsPanelLayout = new javax.swing.GroupLayout(directionsPanel);
+        directionsPanel.setLayout(directionsPanelLayout);
+        directionsPanelLayout.setHorizontalGroup(
+            directionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, directionsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(directionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(leftDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(upDirectionButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(directionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(headingValueLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(backDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(upDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(rightDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15))
+        );
+        directionsPanelLayout.setVerticalGroup(
+            directionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, directionsPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(directionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(directionsPanelLayout.createSequentialGroup()
+                        .addComponent(upDirectionButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(leftDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29))
+                    .addGroup(directionsPanelLayout.createSequentialGroup()
+                        .addComponent(headingValueLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(directionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(directionsPanelLayout.createSequentialGroup()
+                                .addComponent(upDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(backDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, directionsPanelLayout.createSequentialGroup()
+                                .addComponent(rightDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(30, 30, 30))))))
+        );
+
+        turretPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Turret"));
+
+        turretValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        turretValueLabel.setText("120");
 
         fwdTurretButton.setText("Fwd");
         fwdTurretButton.addActionListener(new java.awt.event.ActionListener() {
@@ -109,26 +186,71 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        directionLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        directionLabel.setText("Direction");
+        javax.swing.GroupLayout turretPanelLayout = new javax.swing.GroupLayout(turretPanel);
+        turretPanel.setLayout(turretPanelLayout);
+        turretPanelLayout.setHorizontalGroup(
+            turretPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(turretValueLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(turretPanelLayout.createSequentialGroup()
+                .addGroup(turretPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(turretPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(leftTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(rightTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(turretPanelLayout.createSequentialGroup()
+                        .addGap(45, 45, 45)
+                        .addComponent(fwdTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        turretPanelLayout.setVerticalGroup(
+            turretPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(turretPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(turretValueLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(fwdTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(turretPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(leftTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rightTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
 
-        turretLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        turretLabel.setText("Turret");
+        radarPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Radar"));
+        radarPanel.setSize(new java.awt.Dimension(100, 100));
+
+        javax.swing.GroupLayout radarPanelLayout = new javax.swing.GroupLayout(radarPanel);
+        radarPanel.setLayout(radarPanelLayout);
+        radarPanelLayout.setHorizontalGroup(
+            radarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        radarPanelLayout.setVerticalGroup(
+            radarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        coordinatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Coordinates"));
+        coordinatesPanel.setPreferredSize(new java.awt.Dimension(148, 140));
 
         xLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         xLabel.setText("X");
 
-        yLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        yLabel.setText("Y");
-
         xValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         xValueLabel.setText("0");
+
+        yLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        yLabel.setText("Y");
 
         yValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         yValueLabel.setText("0");
 
-        distanceLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        distanceLabel.setText("Distance");
+        leftValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        leftValueLabel.setText("120");
+
+        left45ValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        left45ValueLabel.setText("120");
 
         distanceSonarValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         distanceSonarValueLabel.setText("120");
@@ -136,154 +258,62 @@ public class GUI extends javax.swing.JFrame {
         distanceIrValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         distanceIrValueLabel.setText("120");
 
-        left45ValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        left45ValueLabel.setText("120");
-
         right45ValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         right45ValueLabel.setText("120");
-
-        leftValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        leftValueLabel.setText("120");
 
         rightValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         rightValueLabel.setText("120");
 
-        turretValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        turretValueLabel.setText("120");
-
-        headingValueLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        headingValueLabel.setText("120");
-
-        stopButton.setText("Stop");
-        stopButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopButtonActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout coordinatesPanelLayout = new javax.swing.GroupLayout(coordinatesPanel);
+        coordinatesPanel.setLayout(coordinatesPanelLayout);
+        coordinatesPanelLayout.setHorizontalGroup(
+            coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(coordinatesPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(180, 180, 180)
-                        .addComponent(distanceLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(leftDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(backDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(upDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(rightDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(directionLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(headingValueLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(68, 68, 68)
-                                        .addComponent(fwdTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(36, 36, 36)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(turretValueLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                                        .addComponent(leftValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                        .addComponent(rightValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                                        .addComponent(left45ValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                        .addComponent(right45ValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                                        .addComponent(leftTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                        .addComponent(rightTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                                .addGap(0, 0, Short.MAX_VALUE))
-                                            .addComponent(turretLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(stopButton, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(14, 14, 14)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(xLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(xValueLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(yLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(yValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(distanceIrValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(distanceSonarValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(33, 33, 33)))))
-                        .addGap(0, 10, Short.MAX_VALUE)))
-                .addContainerGap())
+                .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(coordinatesPanelLayout.createSequentialGroup()
+                        .addComponent(xLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(yLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(coordinatesPanelLayout.createSequentialGroup()
+                        .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(leftValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(xValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(left45ValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(distanceSonarValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(yValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(coordinatesPanelLayout.createSequentialGroup()
+                                .addComponent(distanceIrValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(rightValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(right45ValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        coordinatesPanelLayout.setVerticalGroup(
+            coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(coordinatesPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(xLabel)
-                            .addComponent(yLabel)
-                            .addComponent(distanceLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(xValueLabel)
-                            .addComponent(yValueLabel)
-                            .addComponent(distanceSonarValueLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(distanceIrValueLabel))
-                    .addComponent(stopButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(xLabel)
+                    .addComponent(yLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(xValueLabel)
+                    .addComponent(yValueLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(distanceSonarValueLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(left45ValueLabel)
+                    .addComponent(distanceIrValueLabel)
                     .addComponent(right45ValueLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(coordinatesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(leftValueLabel)
                     .addComponent(rightValueLabel))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(turretValueLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(turretLabel)
-                            .addComponent(directionLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(headingValueLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(fwdTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(rightTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(leftTurretButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(upDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(backDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addComponent(rightDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(leftDirectionButton, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -292,16 +322,33 @@ public class GUI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(10, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(coordinatesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(directionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(turretPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(radarPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mapPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 330, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(10, 10, 10))
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(coordinatesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(radarPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(turretPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(directionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(8, 8, 8)
+                .addComponent(mapPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -335,9 +382,9 @@ public class GUI extends javax.swing.JFrame {
         Robot.turretRight();
     }//GEN-LAST:event_rightTurretButtonActionPerformed
 
-    private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
+    private void upDirectionButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_upDirectionButton1ActionPerformed
         Robot.stop();
-    }//GEN-LAST:event_stopButtonActionPerformed
+    }//GEN-LAST:event_upDirectionButton1ActionPerformed
 
    static GUI gui;
     /**
@@ -353,6 +400,7 @@ public class GUI extends javax.swing.JFrame {
                 }
             });
     }
+
     public void setStatus() {
  
         System.out.println("GUI.setStatus start");
@@ -368,31 +416,38 @@ public class GUI extends javax.swing.JFrame {
         this.leftValueLabel.setText ( Status.left.toString() );
         this.left45ValueLabel.setText ( Status.left45.toString() );
         
+        
+        ((MapJPanel) mapPanel).addCoord( Status.x, Status.y );
+        
+        radarPanel.repaint();
+        mapPanel.repaint();
+        
         System.out.println("GUI.setStatus start");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backDirectionButton;
-    private javax.swing.JLabel directionLabel;
+    private javax.swing.JPanel coordinatesPanel;
+    private javax.swing.JPanel directionsPanel;
     private javax.swing.JLabel distanceIrValueLabel;
-    private javax.swing.JLabel distanceLabel;
     private javax.swing.JLabel distanceSonarValueLabel;
     private javax.swing.JButton fwdTurretButton;
     private javax.swing.JLabel headingValueLabel;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel left45ValueLabel;
     private javax.swing.JButton leftDirectionButton;
     private javax.swing.JButton leftTurretButton;
     private javax.swing.JLabel leftValueLabel;
+    private javax.swing.JPanel mapPanel;
+    private javax.swing.JPanel radarPanel;
     private javax.swing.JLabel right45ValueLabel;
     private javax.swing.JButton rightDirectionButton;
     private javax.swing.JButton rightTurretButton;
     private javax.swing.JLabel rightValueLabel;
-    private javax.swing.JButton stopButton;
-    private javax.swing.JLabel turretLabel;
+    private javax.swing.JPanel turretPanel;
     private javax.swing.JLabel turretValueLabel;
     private javax.swing.JButton upDirectionButton;
+    private javax.swing.JButton upDirectionButton1;
     private javax.swing.JLabel xLabel;
     private javax.swing.JLabel xValueLabel;
     private javax.swing.JLabel yLabel;

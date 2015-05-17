@@ -14,10 +14,8 @@ eprom:
 term:
 	minicom -b 115200 -o -D /dev/ttyUSB0 
 
-<<<<<<< HEAD
 copy:
 	scp dist/WallFollowing.jar pi@10.0.0.27:~/SimpleIDE/wall-following/dist/
-=======
+
 java:
 	cd dist && java -Djava.library.path=/usr/lib/jni  -cp .:lib/ -jar WallFollowing.jar
->>>>>>> 329385f17dc95a2f7871631e1814b7cac0d50de7
