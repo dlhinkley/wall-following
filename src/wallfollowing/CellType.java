@@ -9,14 +9,5 @@ package wallfollowing;
  *
  * @author dlhinkley
  */
-public class Coord {
-    public int x;
-    public int y;
-    public CellType type;
-
-    Coord(int x, int y, CellType type) {
-        this.x = x;
-        this.y = y;
-        this.type = type;
-    }
-}
+public enum CellType {OBSTACLE,VISITED}
+    

@@ -224,7 +224,7 @@ void Location::update() {
 	double deltaX = deltaDistance * (double) cos(heading);
 	double deltaY = deltaDistance * (double) sin(heading);
 	double RadiansPerCount = distancePerCount / trackWidth;
-	double deltaHeading = (double) (deltaTicksRight - deltaTicksLeft) * RadiansPerCount;
+	double deltaHeading = (double) (deltaTicksLeft - deltaTicksRight) * RadiansPerCount;
 
 	x += deltaX;
 	y += deltaY;

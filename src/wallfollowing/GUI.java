@@ -416,13 +416,29 @@ public class GUI extends javax.swing.JFrame {
         this.leftValueLabel.setText ( Status.left.toString() );
         this.left45ValueLabel.setText ( Status.left45.toString() );
         
+
+//        addObstacle(Status.x, Status.y, Status.left, 270 );
+//        addObstacle(Status.x, Status.y, Status.left45, 315 );
+//        addObstacle(Status.x, Status.y, Status.ahead, 0 );
+//        addObstacle(Status.x, Status.y, Status.right45, 45 );
+//        addObstacle(Status.x, Status.y, Status.right, 90 );
         
-        ((MapJPanel) mapPanel).addCoord( Status.x, Status.y );
+        ((MapJPanel) mapPanel).addCoord( Status.x, Status.y, CellType.VISITED );
         
         radarPanel.repaint();
         mapPanel.repaint();
         
         System.out.println("GUI.setStatus start");
+    }
+    private void addObstacle(int x, int y, int distance, int degrees ) {
+        
+        double angle = degrees * Math.PI / 180;
+
+        int wallX = (int) (x - (distance * Math.sin(angle)));
+        int wallY = (int) (y - (distance * Math.cos(angle)));
+        
+        ((MapJPanel) mapPanel).addCoord(wallX, wallY, CellType.OBSTACLE );
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

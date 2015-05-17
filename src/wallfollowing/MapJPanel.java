@@ -23,7 +23,7 @@ public class MapJPanel extends JPanel {
         private int minY = 0;
         private int maxY = 0;
         
-        public void addCoord(int x,int y) {
+        public void addCoord(int x,int y, CellType type) {
             
             System.out.println("MapJPanel.addCoord x=" + x + " y=" + y);
 
@@ -42,7 +42,7 @@ public class MapJPanel extends JPanel {
             // If doesn't exist, add it
             if ( ! found ) {
                 
-                coords.add( new Coord(x,y));
+                coords.add( new Coord(x,y, type));
                 
                 if ( y > maxY ) maxY = y;
                 if ( y < minY ) minY = y;
@@ -71,18 +71,16 @@ public class MapJPanel extends JPanel {
             
             // Draw dots
             
-            
-            int centerX = (width  - x) / 2;
-            int centerY = (height - y) / 2;
+            // Get the center of the canvas
+            int centerX = (width  + x) / 2;
+            int centerY = (height + y) / 2;
 
-            System.out.println("centerX=" + centerX + " centerY=" + centerY);
             
             // Put dot in center
             g.setColor( Color.green);
             g.fillOval(centerX, centerY, 10, 10);                
             
             
-            g.setColor( Color.red);
 
             Iterator<Coord> it = coords.iterator();
             
@@ -90,10 +88,19 @@ public class MapJPanel extends JPanel {
                 
                 Coord coord = it.next();
                 
-                int circleX = coord.x + centerX;
-                int circleY = coord.y + centerX;
+                if ( coord.type == CellType.VISITED  ) g.setColor( Color.green );
+                if ( coord.type == CellType.OBSTACLE ) g.setColor( Color.red   );
+               
+                // Rotate the coordinates 90 degrees left
+                //
+                int rotateX = coord.y;
+                int rotateY = coord.x * -1;
+                
+                // Center the coordinates
+                int adjX = rotateX + centerX;
+                int adjY = rotateY + centerX;
 
-                g.fillOval(circleX, circleY, 3, 3);                
+                g.fillOval(adjX, adjY, 3, 3);                
             }
         }
 }
