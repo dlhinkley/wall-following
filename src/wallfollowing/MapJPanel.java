@@ -94,7 +94,7 @@ public class MapJPanel extends JPanel {
                 // Rotate the coordinates 90 degrees left
                 //
                 int rotateX = coord.y;
-                int rotateY = coord.x * -1;
+                int rotateY = coord.x;// * -1;
                 
                 // Center the coordinates
                 int adjX = rotateX + centerX;

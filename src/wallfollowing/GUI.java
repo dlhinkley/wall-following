@@ -397,6 +397,9 @@ public class GUI extends javax.swing.JFrame {
                 public void run() {
                     gui = new GUI();
                     gui.setVisible(true);
+                    
+//                    Status.setStatus(30 , 35, 40, 35, 30, 0, 0, 1, 1, 360, 0, 0);
+//                    gui.setStatus();
                 }
             });
     }
@@ -416,14 +419,16 @@ public class GUI extends javax.swing.JFrame {
         this.leftValueLabel.setText ( Status.left.toString() );
         this.left45ValueLabel.setText ( Status.left45.toString() );
         
-
-//        addObstacle(Status.x, Status.y, Status.left, 270 );
-//        addObstacle(Status.x, Status.y, Status.left45, 315 );
-//        addObstacle(Status.x, Status.y, Status.ahead, 0 );
-//        addObstacle(Status.x, Status.y, Status.right45, 45 );
-//        addObstacle(Status.x, Status.y, Status.right, 90 );
+        int rotateX = Status.y;
+        int rotateY = Status.x  * -1;
+                
+        addObstacle(rotateX, rotateY, Status.left, 270 - Status.heading);
+        addObstacle(rotateX, rotateY, Status.left45, 315 - Status.heading);
+        addObstacle(rotateX, rotateY, Status.ahead, 0 - Status.heading);
+        addObstacle(rotateX, rotateY, Status.right45, 45 - Status.heading);
+        addObstacle(rotateX, rotateY, Status.right, 90 - Status.heading);
         
-        ((MapJPanel) mapPanel).addCoord( Status.x, Status.y, CellType.VISITED );
+        ((MapJPanel) mapPanel).addCoord( rotateX, rotateY, CellType.VISITED );
         
         radarPanel.repaint();
         mapPanel.repaint();
@@ -432,13 +437,12 @@ public class GUI extends javax.swing.JFrame {
     }
     private void addObstacle(int x, int y, int distance, int degrees ) {
         
-        double angle = degrees * Math.PI / 180;
+        double angle = Math.toRadians(degrees + 180);
 
-        int wallX = (int) (x - (distance * Math.sin(angle)));
-        int wallY = (int) (y - (distance * Math.cos(angle)));
+        int wallX = (int) (x + distance * Math.cos( angle));
+        int wallY = (int) (y + distance * Math.sin(angle));
         
         ((MapJPanel) mapPanel).addCoord(wallX, wallY, CellType.OBSTACLE );
-
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

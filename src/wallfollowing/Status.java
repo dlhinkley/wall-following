@@ -17,6 +17,37 @@ public class Status {
         public static Integer aheadIr = 0;
         public static Integer turret = 0;
 	
+        /**
+         * 
+         * @param rightIn
+         * @param right45In
+         * @param aheadIn
+         * @param leftIn
+         * @param left45In
+         * @param speedLeftIn
+         * @param speedRightIn
+         * @param xIn
+         * @param yIn
+         * @param headingIn
+         * @param aheadIrIn
+         * @param turretIn 
+         */
+        public static void setStatus(int rightIn, int right45In, int aheadIn, int leftIn, int left45In, int speedLeftIn, int speedRightIn, int xIn, int yIn, int headingIn, int aheadIrIn, int turretIn ) {
+            
+            right = rightIn;
+            right45 = right45In;
+            ahead = aheadIn;
+            left = leftIn;
+            left45 = left45In;
+            speedLeft = speedLeftIn;
+            speedRight = speedRightIn;
+            x = xIn;
+            y = yIn;
+            heading = headingIn;
+            aheadIr = aheadIrIn;
+            turret = turretIn;
+            
+        }
 	public static void setStatus( String statusLine ) {
 		 
 
