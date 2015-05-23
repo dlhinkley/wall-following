@@ -27,16 +27,18 @@ OK
 #include "ping.h"                      // Include simple tools
 #include "servo.h"                      // Include simple tools
 #include "abdrive.h"
+#include "adcDCpropab.h"                            // Include adcDCpropAB
 
 terminal *term;                               // For full duplex serial terminal
 
 
-int PINGA = 16, //GOOD
-	PINGL = 9, //GOOD
-	PINGL45 = 10, //GOOG
-	PINGR = 11, //GOOD
-	PINGR45 = 8, // MAKES WHEEL GO
-	TURRET = 17; //GOOD
+int PINGA = 16, 
+	PINGL = 9, 
+	PINGL45 = 10, 
+	PINGR = 11, 
+	PINGR45 = 8, 
+	TURRET = 17,
+        IR_PORT = 0;
 
 const int TARGET_WALL_DIST = 4;
 
@@ -49,8 +51,8 @@ static volatile int ahead = 0,
                 turret = 0,
 		isRunning = 1;
 
-unsigned int scanStackA[40 + 20]; // If things get weird make this number bigger!
-//unsigned int scanStackL[40 + 20]; // If things get weird make this number bigger!
+unsigned int scanStackA[40 + 20]; 
+unsigned int scanStackIr[40 + 20]; 
 //unsigned int scanStackR[40 + 20]; // If things get weird make this number bigger!
 
 int isWallFollowing = 0,
@@ -76,17 +78,36 @@ int getPing(int port) {
 
 	return mean;
 }
+int getIr(int irPort) {
+    
+    float ad0;
+    float avg;
 
+    avg = 0;
+    for (int i=0; i < 5; i++) {                 // Get average of 3 readings
+      ad0 = adc_volts(irPort);                     //   from ADC0
+      avg = avg + ad0;
+      pause(55);
+    }      
+    return (int) (avg/5);
+}
+void scanCogIr(void *par) {
+
+    while( isRunning ) {
+
+            aheadIr = getIr(IR_PORT);
+    }
+}
 void scanCogA(void *par) {
 
-	while( isRunning ) {
+    while( isRunning ) {
 
-		right = getPing(PINGR);
-		ahead = getPing(PINGA);
-		left = getPing(PINGL);
-		left45 = getPing(PINGL45); 
-		right45 = getPing(PINGR45); 
-	}
+            right = getPing(PINGR);
+            ahead = getPing(PINGA);
+            left = getPing(PINGL);
+            left45 = getPing(PINGL45); 
+            right45 = getPing(PINGR45); 
+    }
 }
 
 
@@ -252,11 +273,12 @@ int main(){
 
 	Location location;
 //	freqout(5, 2000, 2000);               // Start beep - low battery reset alarm
+        adc_init(21, 20, 19, 18);                         // CS=21, SCL=20, DO=19, DI=18
 
 	simpleterm_close();                         // Close default same-cog terminal
 	term = fdserial_open(31, 30, 0, 115200);    // Set up other cog for terminal
 	int scanCogPtrA    = cogstart(&scanCogA, NULL, scanStackA, sizeof(scanStackA));
-//	int scanCogPtrL    = cogstart(&scanCogL, NULL, scanStackL, sizeof(scanStackL));
+	int scanCogPtrIr   = cogstart(&scanCogIr, NULL, scanStackIr, sizeof(scanStackIr));
 //	int scanCogPtrR    = cogstart(&scanCogR, NULL, scanStackR, sizeof(scanStackR));
 
 	while (left == 0 || right45 == 0 || left45 == 0 || right == 0 || ahead == 0 ) {
@@ -273,8 +295,6 @@ int main(){
 
 	// Keep running
 	while( isRunning ) {
-
-
 
 		pollSerial();
 
@@ -297,7 +317,7 @@ int main(){
 	}
 	dprint(term,"END\n");
 	cogstop( scanCogPtrA );
-//	cogstop( scanCogPtrL );
+	cogstop( scanCogPtrIr );
 //	cogstop( scanCogPtrR );
 
 	servo_stop();                               // Stop servo process
