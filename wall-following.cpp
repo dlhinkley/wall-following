@@ -83,13 +83,14 @@ int getIr(int irPort) {
     float ad0;
     float avg;
 
-    avg = 0;
+    avg = 0.0;
     for (int i=0; i < 5; i++) {                 // Get average of 3 readings
       ad0 = adc_volts(irPort);                     //   from ADC0
       avg = avg + ad0;
       pause(55);
     }      
-    return (int) (avg/5);
+    int dist = (int) (avg / 5 * 100);
+    return dist;
 }
 void scanCogIr(void *par) {
 
