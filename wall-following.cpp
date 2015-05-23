@@ -88,9 +88,13 @@ int getIr(int irPort) {
       ad0 = adc_volts(irPort);                     //   from ADC0
       avg = avg + ad0;
       pause(55);
-    }      
-    int dist = (int) (avg / 5 * 100);
-    return dist;
+    }     
+    float sensor = (avg / 5);
+    dprint(term, "DEBUG:getIr sensor=%f\n", sensor);
+    //float volts = sensor * (5 / 4095); // dist is the decimal equivalent of 12 bit hex value returned by ADC
+    //float dist = 60.495 * pow(volts, -1.2); // pow is a math power function to take to power of volts 
+    //dprint(term, "DEBUG:getIr dist=%f volts=%f sensor=%f\n",dist, volts, sensor);
+    return (int) sensor;
 }
 void scanCogIr(void *par) {
 
