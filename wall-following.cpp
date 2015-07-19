@@ -6,7 +6,6 @@
 #include "servo.h"                      // Include simple tools
 #include "abdrive.h"
 #include "adcDCpropab.h"                            // Include adcDCpropAB
-#include "abcalibrate.h"  		// If we need to calibrate  
 
 terminal *term;                               // For full duplex serial terminal
 
@@ -34,20 +33,6 @@ unsigned int scanStackA[40 + 20];
 unsigned int scanStackIr[40 + 20]; 
 //unsigned int scanStackR[40 + 20]; // If things get weird make this number bigger!
 
-/**
- * See http://learn.parallax.com/activitybot/calibrate-your-activitybot
- */
-void calibrate() {
-
-  cal_servoPins(12, 13);
-  cal_encoderPins(14, 15);
-  
-  high(26);
-  high(27);
-  cal_activityBot();
-  low(26);
-  low(27);
-}
 int isWallFollowing = 0,
     speedLeft = 0,
     speedRight = 0;
@@ -209,7 +194,7 @@ Location::Location() {
 	heading = 0.0;
 	x = 0.0;
 	y = 0.0;
-	coordFactor = 70.0;
+	coordFactor = 100;
 	degHeading = 0.0;
 	trackWidth = 0.1058; // http://learn.parallax.com/activitybot/calculating-angles-rotation
 	distancePerCount = 0.00325;
