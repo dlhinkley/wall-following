@@ -176,6 +176,9 @@
         <Component class="javax.swing.JButton" name="upDirectionButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Up"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="upDirectionButtonActionPerformed"/>
@@ -184,6 +187,9 @@
         <Component class="javax.swing.JButton" name="leftDirectionButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="&lt;-"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="leftDirectionButtonActionPerformed"/>
@@ -192,6 +198,9 @@
         <Component class="javax.swing.JButton" name="rightDirectionButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="-&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rightDirectionButtonActionPerformed"/>
@@ -200,6 +209,9 @@
         <Component class="javax.swing.JButton" name="backDirectionButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Dn"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="backDirectionButtonActionPerformed"/>
@@ -208,6 +220,10 @@
         <Component class="javax.swing.JButton" name="upDirectionButton1">
           <Properties>
             <Property name="text" type="java.lang.String" value="Stop"/>
+            <Property name="iconTextGap" type="int" value="2"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="upDirectionButton1ActionPerformed"/>
@@ -272,6 +288,9 @@
         <Component class="javax.swing.JButton" name="fwdTurretButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Fwd"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fwdTurretButtonActionPerformed"/>
@@ -280,6 +299,9 @@
         <Component class="javax.swing.JButton" name="leftTurretButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="&lt;-"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="leftTurretButtonActionPerformed"/>
@@ -288,6 +310,9 @@
         <Component class="javax.swing.JButton" name="rightTurretButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="-&gt;"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[0, 0, 0, 0]"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rightTurretButtonActionPerformed"/>
