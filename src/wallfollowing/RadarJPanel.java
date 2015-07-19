@@ -39,15 +39,16 @@ public class RadarJPanel extends JPanel {
             
 
 
-            this.drawCircle(g, originX, originY, Status.ahead, 0);
-            this.drawCircle(g, originX, originY, Status.right45, 45);
-            this.drawCircle(g, originX, originY, Status.right, 90);
-            this.drawCircle(g, originX, originY, Status.left, 270);
-            this.drawCircle(g, originX, originY, Status.left45, 315);
+            this.drawCircle(g, originX, originY, Status.aheadIr, 0, Color.blue);
+            this.drawCircle(g, originX, originY, Status.ahead, 0, Color.orange);
+            this.drawCircle(g, originX, originY, Status.right45, 45, Color.orange);
+            this.drawCircle(g, originX, originY, Status.right, 90, Color.orange);
+            this.drawCircle(g, originX, originY, Status.left, 270, Color.orange);
+            this.drawCircle(g, originX, originY, Status.left45, 315, Color.orange);
 
          
         }
-        private void drawCircle(Graphics g, int originX, int originY, int distance, int degrees) {
+        private void drawCircle(Graphics g, int originX, int originY, int distance, int degrees, Color color) {
             
                         // Draw left45 dot
             double angle = degrees * Math.PI / 180;
@@ -55,7 +56,7 @@ public class RadarJPanel extends JPanel {
             int x = (int) (originX - (distance * Math.sin(angle)));
             int y = (int) (originY - (distance * Math.cos(angle)));
             
-            g.setColor( Color.orange);
+            g.setColor( color);
             g.fillOval(x, y, 5, 5);
         }
 
