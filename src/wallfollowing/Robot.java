@@ -84,9 +84,4 @@ public class Robot {
     static void stop() {
         drive_speed(0, 0);
     }
-
-    static void calibrate() {
-        sendCommand("calibrate");
-    }
-
 }

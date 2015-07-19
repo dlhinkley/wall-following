@@ -149,10 +149,6 @@ void executeCommand(char args[][20]) {
 	else if ( strcmp(args[0],"stop") == 0  ) {
 		drive_ramp(0, 0);        // Stop
 	}
-	else if ( strcmp(args[0],"calibrate") == 0 ) {
-
-		calibrate();
-	}
 }
 /*
  * Run keyboard polling in a seperate cog to prevent other actions from blocking keystrokes

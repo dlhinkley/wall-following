@@ -427,7 +427,6 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuExitActionPerformed
 
     private void jMenuCalibrateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuCalibrateActionPerformed
-        Robot.calibrate();
     }//GEN-LAST:event_jMenuCalibrateActionPerformed
 
    static GUI gui;
