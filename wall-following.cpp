@@ -1,26 +1,5 @@
 /*
-  Blank Simple Project.c
-  http://learn.parallax.com/propeller-c-tutorials
 
-propeller-elf-gcc -v GCC 4.6.1 (propellergcc_v1_0_0_2344)
-propeller-elf-c++ -I . -L . -I /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools -L /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c -L /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping -L /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo -L /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive -L /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial/cmm/ -o cmm/wall-following.elf -Os -mcmm -m32bit-doubles -fno-exceptions -fno-rtti wall-following.cpp -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -ltiny -lsimpletools -lsimpletext -lsimplei2c -ltiny -lsimpletools -lsimpletext -ltiny -lsimpletools -ltiny
-propeller-load -s cmm/wall-following.elf
-propeller-elf-objdump -h cmm/wall-following.elf
-
-Project Directory: /home/pi/SimpleIDE/wall-following/
-
-propeller-elf-gcc -v GCC 4.6.1 (propellergcc_v1_0_0_2344)
-propeller-elf-c++ -I . -L . -I /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools -L /home/pi/SimpleIDE/Learn/Simple Libraries/Utility/libsimpletools/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libsimpletext/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c -L /home/pi/SimpleIDE/Learn/Simple Libraries/Protocol/libsimplei2c/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping -L /home/pi/SimpleIDE/Learn/Simple Libraries/Sensor/libping/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo -L /home/pi/SimpleIDE/Learn/Simple Libraries/Motor/libservo/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive -L /home/pi/SimpleIDE/Learn/Simple Libraries/Robotics/ActivityBot/libabdrive/cmm/ -I /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial -L /home/pi/SimpleIDE/Learn/Simple Libraries/Text Devices/libfdserial/cmm/ -o cmm/wall-following.elf -Os -mcmm -m32bit-doubles -fno-exceptions -fno-rtti wall-following.cpp -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -lfdserial -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -labdrive -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -lservo -ltiny -lsimpletools -lsimpletext -lsimplei2c -lping -ltiny -lsimpletools -lsimpletext -lsimplei2c -ltiny -lsimpletools -lsimpletext -ltiny -lsimpletools -ltiny
-propeller-load -s cmm/wall-following.elf
-propeller-elf-objdump -h cmm/wall-following.elf
-Done. Build Succeeded!
-
-propeller-load -Dreset=dtr -I /opt/parallax/propeller-load/ -b ACTIVITYBOARD cmm/wall-following.elf -r -p /dev/ttyUSB0Propeller Version 1 on /dev/ttyUSB0
-Loading cmm/wall-following.elf to hub memory
-16780 bytes sent
-
-Verifying RAM ... 
-OK
 
  */
 #include "simpletools.h"                      // Include simple tools
@@ -115,7 +94,12 @@ void scanCogA(void *par) {
     }
 }
 
+void driveSpeed(int left, int right) {
 
+	dprint(term,"DEBUG:driveSpeed left=%d right=%d\n",left,right);
+
+  drive_speed(left,right);
+}
 /**
  * Given an array with the current command and a numeric value argument to the command,
  * execute the command
@@ -129,21 +113,21 @@ void executeCommand(char args[][20]) {
 	}
         // drive_speed right left
 	else if ( strcmp(args[0],"drive_speed") == 0 ) {
-		drive_speed( atoi(args[1]), atoi(args[2]) );
+		driveSpeed( atoi(args[1]), atoi(args[2]) );
 	}
         // drive_goto right left
 	else if ( strcmp(args[0],"drive_goto") == 0 ) {
-		drive_speed( atoi(args[1]), atoi(args[2]) );
+		driveSpeed( atoi(args[1]), atoi(args[2]) );
 	}
 	else if ( strcmp(args[0],"left") == 0  ) {
                 int val = atoi(args[1]);
 		int steps = val * 0.284; // convert angle into degree
-		drive_speed(steps, -steps);
+		driveSpeed(steps, -steps);
 	}
 	else if ( strcmp(args[0],"right") == 0  ) {
                 int val = atoi(args[1]);
 		int steps = val * 0.284; // convert angle into degree
-		drive_speed(steps, -steps);
+		driveSpeed(steps, -steps);
 	}
 	else if ( strcmp(args[0],"slow") == 0 ) {
 		drive_rampStep(0, 0);        // Slow
