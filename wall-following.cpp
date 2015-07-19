@@ -108,7 +108,12 @@ void scanCogA(void *par) {
     }
 }
 
+void driveSpeed(int left, int right) {
 
+	dprint(term,"DEBUG:driveSpeed left=%d right=%d\n",left,right);
+
+  drive_speed(left,right);
+}
 /**
  * Given an array with the current command and a numeric value argument to the command,
  * execute the command
@@ -122,21 +127,21 @@ void executeCommand(char args[][20]) {
 	}
         // drive_speed right left
 	else if ( strcmp(args[0],"drive_speed") == 0 ) {
-		drive_speed( atoi(args[1]), atoi(args[2]) );
+		driveSpeed( atoi(args[1]), atoi(args[2]) );
 	}
         // drive_goto right left
 	else if ( strcmp(args[0],"drive_goto") == 0 ) {
-		drive_speed( atoi(args[1]), atoi(args[2]) );
+		driveSpeed( atoi(args[1]), atoi(args[2]) );
 	}
 	else if ( strcmp(args[0],"left") == 0  ) {
                 int val = atoi(args[1]);
 		int steps = val * 0.284; // convert angle into degree
-		drive_speed(steps, -steps);
+		driveSpeed(steps, -steps);
 	}
 	else if ( strcmp(args[0],"right") == 0  ) {
                 int val = atoi(args[1]);
 		int steps = val * 0.284; // convert angle into degree
-		drive_speed(steps, -steps);
+		driveSpeed(steps, -steps);
 	}
 	else if ( strcmp(args[0],"slow") == 0 ) {
 		drive_rampStep(0, 0);        // Slow
