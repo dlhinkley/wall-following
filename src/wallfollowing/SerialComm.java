@@ -13,6 +13,8 @@ import java.util.Enumeration;
 
 public class SerialComm implements SerialPortEventListener {
          static SerialComm serial;
+
+
 	SerialPort serialPort;
         /** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
@@ -166,5 +168,9 @@ public class SerialComm implements SerialPortEventListener {
 		};
 		t.start();
             
+        }
+        static void stopSerial() {
+        
+            serial.close();
         }
 }

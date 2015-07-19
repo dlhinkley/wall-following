@@ -85,4 +85,8 @@ public class Robot {
         drive_speed(0, 0);
     }
 
+    static void calibrate() {
+        sendCommand("calibrate");
+    }
+
 }

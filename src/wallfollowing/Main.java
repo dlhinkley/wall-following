@@ -31,6 +31,11 @@ public class Main {
 //                }
 	}
 
+    static void exit() {
+        SerialComm.stopSerial();
+        System.exit(0);
+    }
+
 
 
 }

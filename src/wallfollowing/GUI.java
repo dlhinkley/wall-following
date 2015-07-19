@@ -31,7 +31,6 @@ public class GUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel10 = new javax.swing.JLabel();
         mapPanel = new MapJPanel();
         directionsPanel = new javax.swing.JPanel();
         headingValueLabel = new javax.swing.JLabel();
@@ -57,8 +56,11 @@ public class GUI extends javax.swing.JFrame {
         distanceIrValueLabel = new javax.swing.JLabel();
         right45ValueLabel = new javax.swing.JLabel();
         rightValueLabel = new javax.swing.JLabel();
-
-        jLabel10.setText("jLabel10");
+        jMenuBar = new javax.swing.JMenuBar();
+        jMenuFile = new javax.swing.JMenu();
+        jMenuExit = new javax.swing.JMenuItem();
+        jMenuTools = new javax.swing.JMenu();
+        jMenuCalibrate = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -188,7 +190,6 @@ public class GUI extends javax.swing.JFrame {
         });
 
         rightTurretButton.setText("->");
-        rightTurretButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         rightTurretButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rightTurretButtonActionPerformed(evt);
@@ -326,6 +327,32 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jMenuFile.setText("File");
+
+        jMenuExit.setText("Exit");
+        jMenuExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuExitActionPerformed(evt);
+            }
+        });
+        jMenuFile.add(jMenuExit);
+
+        jMenuBar.add(jMenuFile);
+
+        jMenuTools.setText("Tools");
+
+        jMenuCalibrate.setText("Calibrate");
+        jMenuCalibrate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuCalibrateActionPerformed(evt);
+            }
+        });
+        jMenuTools.add(jMenuCalibrate);
+
+        jMenuBar.add(jMenuTools);
+
+        setJMenuBar(jMenuBar);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -353,7 +380,7 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(turretPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(directionsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGap(8, 8, 8)
                 .addComponent(mapPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -394,6 +421,14 @@ public class GUI extends javax.swing.JFrame {
     private void upDirectionButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_upDirectionButton1ActionPerformed
         Robot.stop();
     }//GEN-LAST:event_upDirectionButton1ActionPerformed
+
+    private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
+        Main.exit();
+    }//GEN-LAST:event_jMenuExitActionPerformed
+
+    private void jMenuCalibrateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuCalibrateActionPerformed
+        Robot.calibrate();
+    }//GEN-LAST:event_jMenuCalibrateActionPerformed
 
    static GUI gui;
     /**
@@ -462,7 +497,11 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JLabel distanceSonarValueLabel;
     private javax.swing.JButton fwdTurretButton;
     private javax.swing.JLabel headingValueLabel;
-    private javax.swing.JLabel jLabel10;
+    private javax.swing.JMenuBar jMenuBar;
+    private javax.swing.JMenuItem jMenuCalibrate;
+    private javax.swing.JMenuItem jMenuExit;
+    private javax.swing.JMenu jMenuFile;
+    private javax.swing.JMenu jMenuTools;
     private javax.swing.JLabel left45ValueLabel;
     private javax.swing.JButton leftDirectionButton;
     private javax.swing.JButton leftTurretButton;
